@@ -1,3 +1,0 @@
-C:/repo/Celestial/build/CMakeFiles/Celestial.dir
-C:/repo/Celestial/build/CMakeFiles/edit_cache.dir
-C:/repo/Celestial/build/CMakeFiles/rebuild_cache.dir
