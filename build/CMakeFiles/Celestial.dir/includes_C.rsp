@@ -1,0 +1,1 @@
+-I"C:/repo/SDL3_gfx-1.0.1" -I"C:/repo/SDL3_ttf-3.2.2/include" -I"C:/repo/SDL3_image-3.2.4/include" -I"C:/repo/SDL3-3.2.10/include" -I"C:/repo/glm-1.0.1" -IC:/repo/Celestial/thirdparty/glad/include -IC:/repo/Celestial/include -IC:/repo/Celestial/include/ECS -IC:/repo/Celestial/include/utils

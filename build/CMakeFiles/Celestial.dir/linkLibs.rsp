@@ -1,0 +1,1 @@
+  -L"C:/repo/SDL3-3.2.10/lib/x64"  -L"C:/repo/SDL3_ttf-3.2.2/lib/x64"  -L"C:/repo/SDL3_image-3.2.4/lib/x64"  -L"C:/repo/SDL3_gfx-1.0.1/x64/Release"  -lSDL3 -lSDL3_ttf -lSDL3_image -lSDL3_gfx -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 

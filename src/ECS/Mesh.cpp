@@ -1,0 +1,192 @@
+#include "ECS/Mesh.h"
+
+#include <fstream>
+#include <sstream>
+// #include <iostream>
+
+// Simple triangle data
+float tvertices[] = {
+    // Positions
+	0.f, 0.f, 0.f,
+	1.f, 0.f, 0.f,
+	0.f, 1.f, 0.f,
+	0.f, 0.f, 1.f,
+	0.f, 0.f, 0.f
+};
+
+Mesh::Mesh() {}
+
+Mesh::Mesh(OpenGLRenderer* renderer, std::string ifilepath, glm::vec3 icolor) {
+	glRenderer = renderer;
+	filepath = ifilepath;
+	color = icolor;
+}
+
+Mesh::~Mesh() {
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+}
+
+
+bool Mesh::loadObj(std::string& filepath) {
+	std::string line = "";
+	std::string prefix = "";
+	std::ifstream fileStream(filepath.c_str());
+
+	std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
+	std::vector<glm::vec3> temp_vertices, temp_normals;
+	std::vector<glm::vec2> temp_uvs;
+
+	if (fileStream.is_open()) {
+		std::cout << "Reading file " << filepath << std::endl;
+		while (std::getline(fileStream, line)) {
+			std::istringstream iss(line);
+			// std::cout << line;
+
+			iss >> prefix;
+			if (prefix=="v") {
+				glm::vec3 vertex;
+				iss >> vertex.x >> vertex.y >> vertex.z;
+
+				// std::cout << " (interpreted as vertex ("
+				// << vertex.x << ", " << vertex.y << ", " << vertex.z << ") )" << std::endl;
+
+				temp_vertices.push_back(vertex);
+
+			} else if (prefix=="vt") {
+				glm::vec2 uv;
+				iss >> uv.x >> uv.y;
+				
+				// std::cout << " (interpreted as uv ("
+				// << uv.x << ", " << uv.y << ") )" << std::endl;
+				
+				temp_uvs.push_back(uv);
+
+			} else if (prefix=="vn") {
+				glm::vec3 normal;
+				iss >> normal.x >> normal.y >> normal.z;
+
+				// std::cout << " (interpreted as normal ("
+				// << normal.x << ", " << normal.y << ", " << normal.z << ") )" << std::endl;
+
+				temp_normals.push_back(normal);
+
+			} else if (prefix=="f") {
+				std::string vertex1, vertex2, vertex3;
+				std::string cvert;
+				int vertcount = 0;
+
+				// std::cout << " (interpreted as face )" << std::endl;
+
+				while (iss >> cvert) {
+					vertcount++;
+					if (vertcount > 3) {
+						// std::cout << "Counting more than 3 vertices ! (ending face)" << std::endl;
+						break;
+					}
+					
+					unsigned int vertexIndex, uvIndex, normalIndex;
+					std::istringstream inneriss(cvert);
+					std::string part = "";
+
+					std::getline(inneriss, part, '/');
+					vertexIndex = std::stoi(part);
+					std::getline(inneriss, part, '/');
+					uvIndex = std::stoi(part);
+					std::getline(inneriss, part, '/');
+					normalIndex = std::stoi(part);
+					// std::cout << "(face reading v " << vertexIndex << ", uv " << uvIndex << ", normal " << normalIndex << ")" << std::endl;
+
+					vertexIndices.push_back(vertexIndex);
+					uvIndices.push_back(uvIndex);
+					normalIndices.push_back(normalIndex);
+				}
+			} else {
+				// std::cout << " (ignored)"<<std::endl;
+			}
+		}
+
+		for (unsigned int i=0; i < vertexIndices.size(); i++) {
+			unsigned int vertexIndex = vertexIndices[i];
+			glm::vec3 vertex = temp_vertices[vertexIndex-1];
+			vertices.push_back(vertex);
+			// std::cout << "Pushed vertex " << vertexIndex << " : " << vertex << std::endl;
+		}
+		for (unsigned int i=0; i < uvIndices.size(); i++) {
+			unsigned int uvIndex = uvIndices[i];
+			glm::vec2 uv = temp_uvs[uvIndex-1];
+			uvs.push_back(uv);
+			// std::cout << "Pushed uv " << uvIndex << " : (" << uv.x << ", " << uv.y << ")" << std::endl;
+		}
+		for (unsigned int i=0; i < normalIndices.size(); i++) {
+			unsigned int normalIndex = normalIndices[i];
+			glm::vec3 normal = temp_normals[normalIndex-1];
+			normals.push_back(normal);
+			// std::cout << "Pushed normal " << normalIndex << " : " << normal << std::endl;
+		}
+
+		fileStream.close();
+	}
+
+	return true;
+}
+
+void Mesh::init() {
+	transform = &entity->getComponent<TransformComponent>();
+
+	//Test OBJ loading
+	loadObj(filepath);
+
+	// Generate and bind the Vertex Array Object
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+	//std::cout << "Binding VAO " << VAO << std::endl;
+
+	// Generate and bind the Vertex Buffer Object
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+	//std::cout << "Binding VBO " << VBO << std::endl;
+
+	// Position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	// Unbind the VAO and VBO
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void Mesh::bind() const {
+	glBindVertexArray(VAO);
+}
+
+void Mesh::render() {
+	GLint uniformLoc = glGetUniformLocation(glRenderer->shaderProgram, "color");
+	bind();
+	// std::cout << "Drawing entity at " << transform->position << std::endl;
+	//Set position
+	
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_POLYGON_OFFSET_FILL);
+	glPolygonOffset(1.f, 1.f);
+	
+	glm::mat4 model = glm::scale(glm::mat4(1.f), scale);
+	model = glm::translate(model, glm::vec3((float)transform->position.x, (float)transform->position.y, (float)transform->position.z));
+	glRenderer->setMat4("model", &model[0][0]);
+
+	//Set color
+	glUniform3f(uniformLoc, color.r, color.g, color.b);
+
+	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+
+	//Draw edges
+	if (wireframe) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glEnable(GL_LINE_SMOOTH);
+		glLineWidth(5.f);
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		glUniform3f(uniformLoc, edgecolor.r, edgecolor.g, edgecolor.b);
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+	}
+}

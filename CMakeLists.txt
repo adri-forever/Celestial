@@ -1,0 +1,66 @@
+cmake_minimum_required(VERSION 3.10)
+
+project(Celestial VERSION 1.0)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+include_directories("C:/repo/SDL3_gfx-1.0.1" 
+"C:/repo/SDL3_ttf-3.2.2/include" 
+"C:/repo/SDL3_image-3.2.4/include" 
+"C:/repo/SDL3-3.2.10/include" 
+"C:/repo/glm-1.0.1"
+"thirdparty/glad/include"
+"include" 
+"include/ECS" 
+"include/utils" 
+)
+
+# For lib files
+link_directories("C:/repo/SDL3-3.2.10/lib/x64"
+"C:/repo/SDL3_ttf-3.2.2/lib/x64"
+"C:/repo/SDL3_image-3.2.4/lib/x64"
+"C:/repo/SDL3_gfx-1.0.1/x64/Release" 
+)
+
+# Bad way to link all cpp
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
+# Add the GL loader
+list(APPEND SOURCES "thirdparty/glad/src/glad.c")
+add_executable(Celestial ${SOURCES})
+
+target_link_libraries(Celestial PRIVATE SDL3 
+SDL3_ttf 
+SDL3_image 
+SDL3_gfx 
+)
+
+if (WIN32)
+    if (CMAKE_BUILD_TYPE STREQUAL "Release")
+        # No console in Release
+        target_link_options(Celestial PRIVATE "-mwindows")
+    elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        # Console in Debug
+        target_link_options(Celestial PRIVATE "-mconsole")
+    endif()
+endif()
+
+# Find all .dll files in the thirdparty directory
+file(GLOB DLLS "${CMAKE_SOURCE_DIR}/thirdparty/bin/*.dll")
+list(APPEND DLLS "C:/msys64/mingw64/bin/libgcc_s_seh-1.dll"
+"C:/msys64/mingw64/bin/libstdc++-6.dll"
+"C:/msys64/mingw64/bin/libwinpthread-1.dll"
+)
+# Copy the .dll files to the target output directory after building
+add_custom_command(TARGET Celestial POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${DLLS}
+    $<TARGET_FILE_DIR:Celestial>
+)
+# Copy the assets to the build directory
+add_custom_command(TARGET Celestial POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/assets
+    ${CMAKE_BINARY_DIR}/assets)

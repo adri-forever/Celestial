@@ -1,0 +1,68 @@
+[
+{
+  "directory": "C:/repo/Celestial/build",
+  "command": "C:/msys64/mingw64/bin/g++.exe  @CMakeFiles/Celestial.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles/Celestial.dir/src/Celestial.cpp.obj -c C:/repo/Celestial/src/Celestial.cpp",
+  "file": "C:/repo/Celestial/src/Celestial.cpp",
+  "output": "CMakeFiles/Celestial.dir/src/Celestial.cpp.obj"
+},
+{
+  "directory": "C:/repo/Celestial/build",
+  "command": "C:/msys64/mingw64/bin/g++.exe  @CMakeFiles/Celestial.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles/Celestial.dir/src/ECS/CamKeyboardController.cpp.obj -c C:/repo/Celestial/src/ECS/CamKeyboardController.cpp",
+  "file": "C:/repo/Celestial/src/ECS/CamKeyboardController.cpp",
+  "output": "CMakeFiles/Celestial.dir/src/ECS/CamKeyboardController.cpp.obj"
+},
+{
+  "directory": "C:/repo/Celestial/build",
+  "command": "C:/msys64/mingw64/bin/g++.exe  @CMakeFiles/Celestial.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles/Celestial.dir/src/ECS/Camera.cpp.obj -c C:/repo/Celestial/src/ECS/Camera.cpp",
+  "file": "C:/repo/Celestial/src/ECS/Camera.cpp",
+  "output": "CMakeFiles/Celestial.dir/src/ECS/Camera.cpp.obj"
+},
+{
+  "directory": "C:/repo/Celestial/build",
+  "command": "C:/msys64/mingw64/bin/g++.exe  @CMakeFiles/Celestial.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles/Celestial.dir/src/ECS/ECS.cpp.obj -c C:/repo/Celestial/src/ECS/ECS.cpp",
+  "file": "C:/repo/Celestial/src/ECS/ECS.cpp",
+  "output": "CMakeFiles/Celestial.dir/src/ECS/ECS.cpp.obj"
+},
+{
+  "directory": "C:/repo/Celestial/build",
+  "command": "C:/msys64/mingw64/bin/g++.exe  @CMakeFiles/Celestial.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles/Celestial.dir/src/ECS/Mesh.cpp.obj -c C:/repo/Celestial/src/ECS/Mesh.cpp",
+  "file": "C:/repo/Celestial/src/ECS/Mesh.cpp",
+  "output": "CMakeFiles/Celestial.dir/src/ECS/Mesh.cpp.obj"
+},
+{
+  "directory": "C:/repo/Celestial/build",
+  "command": "C:/msys64/mingw64/bin/g++.exe  @CMakeFiles/Celestial.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles/Celestial.dir/src/Game.cpp.obj -c C:/repo/Celestial/src/Game.cpp",
+  "file": "C:/repo/Celestial/src/Game.cpp",
+  "output": "CMakeFiles/Celestial.dir/src/Game.cpp.obj"
+},
+{
+  "directory": "C:/repo/Celestial/build",
+  "command": "C:/msys64/mingw64/bin/g++.exe  @CMakeFiles/Celestial.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles/Celestial.dir/src/OpenGLRenderer.cpp.obj -c C:/repo/Celestial/src/OpenGLRenderer.cpp",
+  "file": "C:/repo/Celestial/src/OpenGLRenderer.cpp",
+  "output": "CMakeFiles/Celestial.dir/src/OpenGLRenderer.cpp.obj"
+},
+{
+  "directory": "C:/repo/Celestial/build",
+  "command": "C:/msys64/mingw64/bin/g++.exe  @CMakeFiles/Celestial.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles/Celestial.dir/src/utils/Vector2_double.cpp.obj -c C:/repo/Celestial/src/utils/Vector2_double.cpp",
+  "file": "C:/repo/Celestial/src/utils/Vector2_double.cpp",
+  "output": "CMakeFiles/Celestial.dir/src/utils/Vector2_double.cpp.obj"
+},
+{
+  "directory": "C:/repo/Celestial/build",
+  "command": "C:/msys64/mingw64/bin/g++.exe  @CMakeFiles/Celestial.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles/Celestial.dir/src/utils/Vector3_double.cpp.obj -c C:/repo/Celestial/src/utils/Vector3_double.cpp",
+  "file": "C:/repo/Celestial/src/utils/Vector3_double.cpp",
+  "output": "CMakeFiles/Celestial.dir/src/utils/Vector3_double.cpp.obj"
+},
+{
+  "directory": "C:/repo/Celestial/build",
+  "command": "C:/msys64/mingw64/bin/g++.exe  @CMakeFiles/Celestial.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles/Celestial.dir/src/utils/glUtils.cpp.obj -c C:/repo/Celestial/src/utils/glUtils.cpp",
+  "file": "C:/repo/Celestial/src/utils/glUtils.cpp",
+  "output": "CMakeFiles/Celestial.dir/src/utils/glUtils.cpp.obj"
+},
+{
+  "directory": "C:/repo/Celestial/build",
+  "command": "C:/msys64/mingw64/bin/gcc.exe  @CMakeFiles/Celestial.dir/includes_C.rsp -g -o CMakeFiles/Celestial.dir/thirdparty/glad/src/glad.c.obj -c C:/repo/Celestial/thirdparty/glad/src/glad.c",
+  "file": "C:/repo/Celestial/thirdparty/glad/src/glad.c",
+  "output": "CMakeFiles/Celestial.dir/thirdparty/glad/src/glad.c.obj"
+}
+]
