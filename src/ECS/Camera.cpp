@@ -13,8 +13,7 @@ void Camera::init() {
     transform = &entity->getComponent<TransformComponent>();
 
     // std::cout << glm::to_string(transform->position) << std::endl;
-
-    setViewTarget();
+    
     // ortho = true;
     updateProjection(0.f);
 }
@@ -30,18 +29,9 @@ void Camera::setOrtho() {
     ortho = true;
 }
 
-void Camera::setViewTarget() {
-    // glm::vec3 cameraDirection = glm::normalize(transform->position - cameraTarget);
-    // glm::vec3 cameraPos = transform->position;
-    view = glm::lookAt(transform->position, cameraTarget, up);
-
-	// std::cout << "Projection : " << glm::to_string(projection) << std::endl;
-	// std::cout << "View : " << glm::to_string(view) << std::endl;
-}
-
 void Camera::updateProjection(float aspect) {
     //In case of invalid aspect ratio, don t change it
-    if (aspect <= 0.01f) {
+    if (aspect <= .01f) {
         aspect = aspectR;
     }
 

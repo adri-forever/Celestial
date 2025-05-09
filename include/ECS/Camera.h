@@ -26,19 +26,12 @@ public:
 	bool active = true;
 
 	bool ortho = false;
-	std::string person = "third"; // first person, third person
-	bool invX = true;
-	bool invY = true;
-
-	glm::vec3 up = glm::vec3(0.f, 1.f, 0.f);
 
 	float aspectR = 16.f/9.f;
 	float nearplane = 0.1f, farplane = 100.f;
 	float fov_deg = 90.f;
 	
 	float height = 5.f, width = height*aspectR;
-
-	glm::vec3 cameraTarget = glm::vec3(0.f);
 
 	glm::mat4 projection;
 	glm::mat4 view = glm::mat4(1.f);
@@ -51,7 +44,6 @@ public:
 
 	void setPerspective();
 	void setOrtho();
-	void setViewTarget();
 
 	void updateProjection(float aspect);
 

@@ -93,20 +93,27 @@ void Game::init(const char* title, int width, int height, SDL_WindowFlags flags)
 
 		glm::vec3 color_red(1.f, 0.f, 0.f);
 		glm::vec3 color_cyan(0.f, 1.f, 1.f);
+		glm::vec3 color_db(0.5f, .1f, .1f);
 		auto& e1(entityManager.addEntity());
-		e1.addComponent<TransformComponent>(-.5, 0., 0.);
+		e1.addComponent<TransformComponent>(0.f, 0.f, 0.f);
 		e1.addComponent<Mesh>(&glRenderer, "./assets/models/ico.obj", color_red);
 		e1.getComponent<Mesh>().scale = glm::vec3(.5f);
 		// std::cout << e1.getComponent<TransformComponent>().position << std::endl;
 
 		auto& e2(entityManager.addEntity());
-		e2.addComponent<TransformComponent>(2.f, 0.f, 0.f);
+		e2.addComponent<TransformComponent>(3.f, 0.f, 0.f);
 		e2.addComponent<Mesh>(&glRenderer, "./assets/models/coob.obj", color_cyan);
 		e2.getComponent<Mesh>().scale.y = 5.f;
+
+		auto& e3(entityManager.addEntity());
+		e3.addComponent<TransformComponent>(0.f, 5.f, 0.f);
+		e3.addComponent<Mesh>(&glRenderer, "./assets/models/ico.obj", color_db);
+		e3.getComponent<Mesh>().scale = glm::vec3(.2f);
 
 		auto& camera1(entityManager.addEntity());
 		camera1.addComponent<TransformComponent>(0.f, 1.5f, 3.f);
 		camera1.addComponent<Camera>(&glRenderer);
+		camera1.addComponent<CamKeyboardController>();
 		mainCamera = &camera1;
 	}
 }
