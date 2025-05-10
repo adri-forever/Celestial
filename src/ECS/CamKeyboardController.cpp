@@ -7,92 +7,113 @@
 #include "glm/gtx/string_cast.hpp"
 #endif //!GLM_ENABLE_EXPERIMENTAL
 
+#include <glm/gtc/matrix_transform.hpp>
+// #include <glm/gtc/quaternion.hpp>
+#include "glm/gtx/quaternion.hpp"
+
 void CamKeyboardController::init() {
 	transform = &entity->getComponent<TransformComponent>();
 	camera = &entity->getComponent<Camera>();
 
-	// if(transform) {
-	// 	std::cout << "Transform found" << std::endl;
-	// } else {
-	// 	std::cout << "Transform not found" << std::endl;
-	// }
-	// if(camera) {
-	// 	std::cout << "Camera found" << std::endl;
-	// } else {
-	// 	std::cout << "Camera not found" << std::endl;
-	// }
+	// person = "first";
 }
 
 void CamKeyboardController::update() {
-	if (Game::event.type == SDL_EVENT_KEY_DOWN) {
-		switch (Game::event.key.key) {
-		case SDLK_Z:
-			direction.x = -1.f;
-			break;
-		case SDLK_S:
-			direction.x = 1.f;
-			break;
-		case SDLK_Q:
-			direction.y = 1.f;
-			break;
-		case SDLK_D:
-			direction.y = -1.f;
-			break;
-		}
-	}
-	if (Game::event.type == SDL_EVENT_KEY_UP) {
-		switch (Game::event.key.key) {
-		case SDLK_Z:
-			direction.x = 0.f;
-			break;
-		case SDLK_S:
-			direction.x = 0.f;
-			break;
-		case SDLK_Q:
-			direction.y = 0.f;
-			break;
-		case SDLK_D:
-			direction.y = 0.f;
-			break;
-		}
-	}
+	listen_input();
+
+	angles += sensitivity*rotspeed;
+	angles.x = glm::clamp(angles.x, glm::radians(-89.9f), glm::radians(89.9f));
+	angles.y = glm::mod(angles.y, 2*glm::pi<float>());
+
+	glm::quat yaw = glm::angleAxis(angles.y, glm::vec3(0.f, 1.f, 0.f));
+	glm::quat pitch = glm::angleAxis(angles.x, glm::vec3(1.f, 0.f, 0.f));
 
 	if (person=="first") {
-		update_firstperson();
+		update_firstperson(yaw, pitch);
 	} else {
-		update_thirdperson();
+		update_thirdperson(yaw, pitch);
 	}
 }
 
-void CamKeyboardController::update_firstperson() {
-	glm::quat rot_quat = transform->rotation; //convenience
+void CamKeyboardController::listen_input() {
+	switch (Game::event.type) {
+		case SDL_EVENT_KEY_DOWN:
+			switch (Game::event.key.key) {
+				case SDLK_Z:
+					movspeed.z = -1.f;
+					break;
+				case SDLK_S:
+					movspeed.z = 1.f;
+					break;
+				case SDLK_Q:
+					movspeed.x = -1.f;
+					break;
+				case SDLK_D:
+					movspeed.x = 1.f;
+					break;
+				case SDLK_F5:
+					switchPerson();
+					break;
+				default:
+					break;
+			}
+			break;
+		case SDL_EVENT_KEY_UP:
+			switch (Game::event.key.key) {
+				case SDLK_Z:
+					movspeed.z = 0.f;
+					break;
+				case SDLK_S:
+					movspeed.z = 0.f;
+					break;
+				case SDLK_Q:
+					movspeed.x = 0.f;
+					break;
+				case SDLK_D:
+					movspeed.x = 0.f;
+					break;
+				default:
+					break;
+			}
+			break;
+		case SDL_EVENT_MOUSE_MOTION:
+			// std::cout << Game::event.motion.xrel << ", " << Game::event.motion.yrel << std::endl;
+			angles += glm::vec3(sensitivity*(float)Game::event.motion.yrel, sensitivity*(float)Game::event.motion.xrel, 0.f);
+			break;
+		default:
+			break;
+	}
+}
+
+void CamKeyboardController::update_firstperson(glm::quat yaw, glm::quat pitch) {
+	//POSITION
+	transform->position += glm::mat3_cast(yaw)*speed*movspeed;
+
+	//ROTATION
+	transform->rotation = glm::normalize(pitch*yaw); //apply yaw before pitch
+	//because the yaw axis is the absolute "up", while the pitch axis is local x
 	
-	//Full quat approach
-	glm::vec3 vert = glm::normalize(rot_quat*glm::vec3(0.f, 1.f, 0.f));
-	glm::quat yaw = glm::angleAxis(rotspeed*direction.y, vert);
-	rot_quat = glm::normalize(yaw*rot_quat);
-
-	// glm::vec3 normalized = glm::normalize(rot_quat*glm::vec3(1.f, 0.f, 0.f));
-	glm::quat pitch = glm::angleAxis(rotspeed*direction.x, glm::vec3(1.f, 0.f, 0.f));
-	rot_quat = glm::normalize(pitch*rot_quat);
-	transform->rotation = rot_quat;
-
 	glm::mat4 trans = glm::translate(glm::mat4(1.f), -transform->position);
 	glm::mat4 rot = glm::mat4_cast(transform->rotation);
 
-	angles = glm::eulerAngles(rot_quat);
 	camera->view = rot*trans;
 }
 
-void CamKeyboardController::update_thirdperson() {
-	
+void CamKeyboardController::update_thirdperson(glm::quat yaw, glm::quat pitch) {
+	//POSITION
+	cameraTarget += glm::mat3_cast(yaw)*speed*movspeed;
+
+	//ROTATION
+	transform->rotation = glm::normalize(yaw*pitch); //for some reason its the other way around in this case
+	//surely because we are rotating our camera position around a point instead of orienting our camera on itself
+
+	glm::mat3 rot = glm::mat3_cast(transform->rotation);
+	transform->position = rot*glm::vec3(0.f, 0.f, distance) + cameraTarget;
+
+	camera->view = glm::lookAt(transform->position, cameraTarget, up);
 }
 
-void CamKeyboardController::setViewTarget() {
-    // glm::vec3 cameraDirection = glm::normalize(transform->position - cameraTarget);
-    // glm::vec3 cameraPos = transform->position;
-    camera->view = glm::lookAt(transform->position, cameraTarget, up);
-
-	// std::cout << "Projection : " << glm::to_string(projection) << std::endl;
-	// std::cout << "View : " << glm::to_string(view) << std::endl;
+void CamKeyboardController::switchPerson() {
+	person = person=="third" ? "first" : "third";
+	angles = -angles; //seamless uwu
 }
