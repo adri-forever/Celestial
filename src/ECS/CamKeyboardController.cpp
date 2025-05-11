@@ -19,7 +19,9 @@ void CamKeyboardController::init() {
 }
 
 void CamKeyboardController::update() {
-	listen_input();
+	for (SDL_Event event : Game::events) {
+		listen_input(event);
+	}
 
 	angles += sensitivity*rotspeed;
 	angles.x = glm::clamp(angles.x, glm::radians(-89.9f), glm::radians(89.9f));
@@ -35,23 +37,37 @@ void CamKeyboardController::update() {
 	}
 }
 
-void CamKeyboardController::listen_input() {
-	switch (Game::event.type) {
+void CamKeyboardController::listen_input(SDL_Event event) {
+	float xrel, yrel;
+
+	//
+	int numkey;
+	const bool* keyboardstate = SDL_GetKeyboardState(&numkey);
+	std::cout << "Scancodes:";
+	for (int i=0; i<numkey; i++) {
+		if (keyboardstate[i]) {
+			std::cout << i << ", ";
+		}
+	}
+	std::cout << std::endl;
+	//
+
+	switch (event.type) {
 		case SDL_EVENT_KEY_DOWN:
-			switch (Game::event.key.key) {
-				case SDLK_Z:
+			switch (event.key.scancode) {
+				case SDL_SCANCODE_W:
 					movspeed.z = -1.f;
 					break;
-				case SDLK_S:
+				case SDL_SCANCODE_S:
 					movspeed.z = 1.f;
 					break;
-				case SDLK_Q:
+				case SDL_SCANCODE_A:
 					movspeed.x = -1.f;
 					break;
-				case SDLK_D:
+				case SDL_SCANCODE_D:
 					movspeed.x = 1.f;
 					break;
-				case SDLK_F5:
+				case SDL_SCANCODE_F5:
 					switchPerson();
 					break;
 				default:
@@ -59,35 +75,36 @@ void CamKeyboardController::listen_input() {
 			}
 			break;
 		case SDL_EVENT_KEY_UP:
-			switch (Game::event.key.key) {
-				case SDLK_Z:
+			switch (event.key.scancode) {
+				case SDL_SCANCODE_W:
 					movspeed.z = 0.f;
 					break;
-				case SDLK_S:
+				case SDL_SCANCODE_S:
 					movspeed.z = 0.f;
 					break;
-				case SDLK_Q:
+				case SDL_SCANCODE_A:
 					movspeed.x = 0.f;
 					break;
-				case SDLK_D:
+				case SDL_SCANCODE_D:
 					movspeed.x = 0.f;
 					break;
 				default:
 					break;
 			}
 			break;
-		case SDL_EVENT_MOUSE_MOTION:
-			// std::cout << Game::event.motion.xrel << ", " << Game::event.motion.yrel << std::endl;
-			angles += glm::vec3(sensitivity*(float)Game::event.motion.yrel, sensitivity*(float)Game::event.motion.xrel, 0.f);
-			break;
 		default:
 			break;
 	}
+
+	//Mouse movement
+	SDL_GetRelativeMouseState(&xrel, &yrel);
+	angles += glm::vec3(sensitivity*yrel, sensitivity*xrel, 0.f);
 }
 
 void CamKeyboardController::update_firstperson(glm::quat yaw, glm::quat pitch) {
 	//POSITION
-	transform->position += glm::mat3_cast(yaw)*speed*movspeed;
+	transform->position += glm::mat3_cast(glm::conjugate(yaw))*speed*movspeed;
+	//i dont know why i have to take the opposite rotation
 
 	//ROTATION
 	transform->rotation = glm::normalize(pitch*yaw); //apply yaw before pitch

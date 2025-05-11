@@ -1,5 +1,7 @@
 #include "Game.h"
 
+// #include <string>
+
 #ifndef GLM_ENABLE_EXPERIMENTAL
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/string_cast.hpp"
@@ -10,8 +12,8 @@
 #include "glm/gtc/type_ptr.hpp"
 
 EntityManager Game::entityManager;
-SDL_Event Game::event;
 OpenGLRenderer Game::glRenderer;
+std::vector<SDL_Event> Game::events;
 
 //Wacky init
 // auto& player(entityManager.addEntity());
@@ -85,6 +87,8 @@ void Game::init(const char* title, int width, int height, SDL_WindowFlags flags)
 			std::cout << "OpenGL not requested" << std::endl;
 		}
 
+		toggleCursor(relativeState); //sync without changing
+
 		isRunning = true;
 
 		//std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
@@ -131,43 +135,39 @@ void Game::loadFont() {
 }
 
 void Game::handleEvents() {
-	SDL_PollEvent(&event);
-	//std::cout << "Handling event of type " << event.type << std::endl;
-	switch (event.type) {
-		case SDL_EVENT_QUIT:
-			isRunning = false;
-			break;
+	SDL_Event event;	
 
-		case SDL_EVENT_WINDOW_RESIZED:
-			windowSize = glm::ivec2(event.window.data1, event.window.data2);
-			glViewport(0, 0, windowSize.x, windowSize.y); //Synchronize OpenGL viewport size
-			if (mainCamera) { //Update 3D view aspect ratio
-				mainCamera->getComponent<Camera>().updateProjection((float)windowSize.x/(float)windowSize.y);
-			}
-			std::cout << "Window resized to " << glm::to_string(windowSize) << std::endl;
-			break;
+	//Clear events vector
+	events.clear();
 
-		case SDL_EVENT_KEY_DOWN:
-			switch (event.key.key) {
-			case SDLK_ESCAPE:
+	// std::cout<<"Newframe"<<std::endl;
+	while (SDL_PollEvent(&event)) {
+		events.push_back(event);
+		// std::cout<<"polling event "<<event.type<<std::endl;
+		switch (event.type) {
+			case SDL_EVENT_QUIT:
 				isRunning = false;
 				break;
-			case SDLK_TAB:
-				toggleCursor();
+
+			case SDL_EVENT_WINDOW_RESIZED:
+				windowSize = glm::ivec2(event.window.data1, event.window.data2);
+				glViewport(0, 0, windowSize.x, windowSize.y); //Synchronize OpenGL viewport size
+				std::cout << "Window resized to " << glm::to_string(windowSize) << std::endl;
+				break;
+
+			case SDL_EVENT_KEY_DOWN:
+				switch (event.key.key) {
+				case SDLK_ESCAPE:
+					isRunning = false;
+					break;
+				case SDLK_TAB:
+					toggleCursor();
+				default:
+					break;
+				}
 			default:
 				break;
-			}/*
-		case SDL_EVENT_MOUSE_MOTION:
-			std::cout << "Mouse moved to " << event.motion.x << ", " << event.motion.y << std::endl;
-			if (!SDL_CursorVisible()
-				&& (std::abs(event.motion.x - windowSize.getX()) > 64
-					|| std::abs(event.motion.y - windowSize.getY()) > 64)
-				) {
-				SDL_WarpMouseInWindow(window, windowSize.getX() / 2, windowSize.getY() / 2 );
-				std::cout << "Mouse force moved" << std::endl;
-			}*/
-		default:
-			break;
+		}
 	}
 }
 
@@ -208,16 +208,11 @@ void Game::clean() {
 }
 
 void Game::toggleCursor() {
-	toggleCursor(!SDL_CursorVisible());
+	toggleCursor(!relativeState);
 }
 
 void Game::toggleCursor(bool state) {
-	if (state) {
-		SDL_WarpMouseInWindow(window, windowSize.x/2, windowSize.y/2);
-		SDL_ShowCursor();
-		SDL_SetWindowMouseGrab(window, false);
-	} else {
-		SDL_HideCursor();
-		SDL_SetWindowMouseGrab(window, true);
-	}
+	SDL_SetWindowRelativeMouseMode(window, state);
+	SDL_WarpMouseInWindow(window, windowSize.x/2, windowSize.y/2);
+	relativeState = state;
 }

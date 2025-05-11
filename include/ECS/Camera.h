@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "SDL3/SDL.h"
+
 #include "glad/glad.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -41,6 +43,9 @@ public:
 	OpenGLRenderer* glRenderer;
 
 	void init() override;
+	void update() override;
+
+	void listen_input(SDL_Event event);
 
 	void setPerspective();
 	void setOrtho();

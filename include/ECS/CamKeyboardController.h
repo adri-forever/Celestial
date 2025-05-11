@@ -6,6 +6,8 @@
 #include <glm/glm.hpp>
 #include "glm/gtc/constants.hpp"
 
+#include "SDL3/SDL.h"
+
 class TransformComponent;
 class Camera;
 
@@ -34,7 +36,7 @@ public:
 
 	void update() override;
 
-	void listen_input();
+	void listen_input(SDL_Event event);
 
 	void update_firstperson(glm::quat yaw, glm::quat pitch);
 	void update_thirdperson(glm::quat yaw, glm::quat pitch);

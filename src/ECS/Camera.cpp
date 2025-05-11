@@ -1,5 +1,7 @@
 #include "ECS/Camera.h"
 
+#include "Game.h"
+
 #ifndef GLM_ENABLE_EXPERIMENTAL
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/string_cast.hpp"
@@ -18,6 +20,21 @@ void Camera::init() {
     updateProjection(0.f);
 }
 
+void Camera::update() {
+	for (SDL_Event event : Game::events) {
+		listen_input(event);
+	}
+}
+
+void Camera::listen_input(SDL_Event event) {
+    switch (event.type) {
+        case SDL_EVENT_WINDOW_RESIZED:
+            updateProjection((float)event.window.data1/(float)event.window.data2);
+            break;
+        default:
+            break;
+	}
+}
 
 void Camera::setPerspective() {
     projection = glm::perspective(glm::radians(fov_deg), aspectR, nearplane, farplane);

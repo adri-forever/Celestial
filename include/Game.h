@@ -13,6 +13,7 @@
 
 //std
 #include <iostream>
+#include <vector>
 
 //Project classes
 #include "OpenGLRenderer.h"
@@ -33,10 +34,12 @@ public:
 	TTF_Font* font{ nullptr };
 
 	//static SDL_Renderer* renderer;
-	static SDL_Event event;
+	// static SDL_Event event;
 	static EntityManager entityManager;
 	static OpenGLRenderer glRenderer;
+	static std::vector<SDL_Event> events;
 
+	bool relativeState = false;
 	bool isRunning = false;
 	glm::ivec2 windowSize;
 
@@ -44,12 +47,10 @@ public:
 
 	int age = 0; //Age in frames
 
-
 	void init(const char* title, int width, int height, SDL_WindowFlags flags);
 	void clean();
 
 	void loadFont();
-	void setupTriangle();
 
 	void handleEvents();
 	void update(int framelength);
