@@ -9,6 +9,8 @@
 #include "Camera.h"
 #include "CamKeyboardController.h"
 
-#include "Mesh.h"
+#include "MeshComponent.h"
+
+#include "PointMass.h"
 
 #endif // !Components_h

@@ -1,25 +1,31 @@
-#include "ECS/Mesh.h"
+#include "MeshManager.h"
 
 #include <fstream>
 #include <sstream>
-// #include <iostream>
 
-// Simple triangle data
-float tvertices[] = {
-    // Positions
-	0.f, 0.f, 0.f,
-	1.f, 0.f, 0.f,
-	0.f, 1.f, 0.f,
-	0.f, 0.f, 1.f,
-	0.f, 0.f, 0.f
-};
+Mesh::Mesh(std::string filepath) {
+    if (loadObj(filepath)) {
+        // Generate and bind the Vertex Array Object
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+        //std::cout << "Binding VAO " << VAO << std::endl;
 
-Mesh::Mesh() {}
+        // Generate and bind the Vertex Buffer Object
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+        //std::cout << "Binding VBO " << VBO << std::endl;
 
-Mesh::Mesh(OpenGLRenderer* renderer, std::string ifilepath, glm::vec3 icolor) {
-	glRenderer = renderer;
-	filepath = ifilepath;
-	color = icolor;
+        // Position attribute
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        // Unbind the VAO and VBO
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    } else {
+        std::cout << "Failed to load mesh " << filepath << std::endl;
+    }
 }
 
 Mesh::~Mesh() {
@@ -27,8 +33,7 @@ Mesh::~Mesh() {
 	glDeleteBuffers(1, &VBO);
 }
 
-
-bool Mesh::loadObj(std::string& filepath) {
+bool Mesh::loadObj(std::string filepath) {
 	std::string line = "";
 	std::string prefix = "";
 	std::ifstream fileStream(filepath.c_str());
@@ -131,62 +136,15 @@ bool Mesh::loadObj(std::string& filepath) {
 	return true;
 }
 
-void Mesh::init() {
-	transform = &entity->getComponent<TransformComponent>();
-
-	//Test OBJ loading
-	loadObj(filepath);
-
-	// Generate and bind the Vertex Array Object
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-	//std::cout << "Binding VAO " << VAO << std::endl;
-
-	// Generate and bind the Vertex Buffer Object
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
-	//std::cout << "Binding VBO " << VBO << std::endl;
-
-	// Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	// Unbind the VAO and VBO
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+Mesh& MeshManager::loadMesh(std::string name, std::string filepath) {
+    Mesh* m = new Mesh(filepath);
+    // m->loadObj(filepath);
+    std::unique_ptr<Mesh> uPtr{ m };
+    meshes.emplace_back(std::move(uPtr));
+    map.emplace(name, meshes.size()-1);
+    return *m;
 }
 
-void Mesh::bind() const {
-	glBindVertexArray(VAO);
-}
-
-void Mesh::render() {
-	GLint uniformLoc = glGetUniformLocation(glRenderer->shaderProgram, "color");
-	bind();
-	// std::cout << "Drawing entity at " << transform->position << std::endl;
-	//Set position
-	
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glEnable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(1.f, 1.f);
-	
-	glm::mat4 model = glm::scale(glm::mat4(1.f), scale);
-	model = glm::translate(model, glm::vec3((float)transform->position.x, (float)transform->position.y, (float)transform->position.z));
-	glRenderer->setMat4("model", &model[0][0]);
-
-	//Set color
-	glUniform3f(uniformLoc, color.r, color.g, color.b);
-
-	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-
-	//Draw edges
-	if (wireframe) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glEnable(GL_LINE_SMOOTH);
-		glLineWidth(5.f);
-		glDisable(GL_POLYGON_OFFSET_FILL);
-		glUniform3f(uniformLoc, edgecolor.r, edgecolor.g, edgecolor.b);
-		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-	}
+Mesh& MeshManager::getMesh(std::string name) {
+    return *meshes[map[name]];
 }

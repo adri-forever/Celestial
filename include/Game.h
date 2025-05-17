@@ -16,6 +16,7 @@
 #include <vector>
 
 //Project classes
+#include "MeshManager.h"
 #include "OpenGLRenderer.h"
 #include "utils/glUtils.h"
 #include "ECS/Components.h"
@@ -38,6 +39,8 @@ public:
 	static EntityManager entityManager;
 	static OpenGLRenderer glRenderer;
 	static std::vector<SDL_Event> events;
+
+	MeshManager meshManager;
 
 	bool relativeState = false;
 	bool isRunning = false;

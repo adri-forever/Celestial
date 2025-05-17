@@ -1,7 +1,5 @@
 #include "Game.h"
 
-// #include <string>
-
 #ifndef GLM_ENABLE_EXPERIMENTAL
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/string_cast.hpp"
@@ -10,6 +8,8 @@
 #include "glm/gtx/rotate_vector.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+
+#include "Physics.h"
 
 EntityManager Game::entityManager;
 OpenGLRenderer Game::glRenderer;
@@ -95,24 +95,29 @@ void Game::init(const char* title, int width, int height, SDL_WindowFlags flags)
 
 		//loadFont();
 
+		Physics::echo();
+
+		Mesh& ico = meshManager.loadMesh("ico", "./assets/models/ico.obj");
+		Mesh& coob = meshManager.loadMesh("coob", "./assets/models/coob.obj");
+
 		glm::vec3 color_red(1.f, 0.f, 0.f);
 		glm::vec3 color_cyan(0.f, 1.f, 1.f);
 		glm::vec3 color_db(0.5f, .1f, .1f);
 		auto& e1(entityManager.addEntity());
 		e1.addComponent<TransformComponent>(0.f, 0.f, 0.f);
-		e1.addComponent<Mesh>(&glRenderer, "./assets/models/ico.obj", color_red);
-		e1.getComponent<Mesh>().scale = glm::vec3(.5f);
+		e1.addComponent<MeshComponent>(&glRenderer, &ico, color_red);
+		e1.getComponent<MeshComponent>().scale = glm::vec3(.5f);
 		// std::cout << e1.getComponent<TransformComponent>().position << std::endl;
 
 		auto& e2(entityManager.addEntity());
 		e2.addComponent<TransformComponent>(3.f, 0.f, 0.f);
-		e2.addComponent<Mesh>(&glRenderer, "./assets/models/coob.obj", color_cyan);
-		e2.getComponent<Mesh>().scale.y = 5.f;
+		e2.addComponent<MeshComponent>(&glRenderer, &coob, color_cyan);
+		e2.getComponent<MeshComponent>().scale.y = 5.f;
 
 		auto& e3(entityManager.addEntity());
 		e3.addComponent<TransformComponent>(0.f, 5.f, 0.f);
-		e3.addComponent<Mesh>(&glRenderer, "./assets/models/ico.obj", color_db);
-		e3.getComponent<Mesh>().scale = glm::vec3(.2f);
+		e3.addComponent<MeshComponent>(&glRenderer, &ico, color_db);
+		e3.getComponent<MeshComponent>().scale = glm::vec3(.2f);
 
 		auto& camera1(entityManager.addEntity());
 		camera1.addComponent<TransformComponent>(0.f, 1.5f, 3.f);
@@ -184,8 +189,12 @@ void Game::render() {
 
 	glRenderer.use();
 	
-	Camera& camera = mainCamera->getComponent<Camera>();
-	camera.setCamera();
+	if (mainCamera) {
+		Camera& camera = mainCamera->getComponent<Camera>();
+		camera.setCamera();
+	} else {
+		std::cout << "Camera not found ..." << std::endl;
+	}
 	// std::cout << "Projection : " << glm::to_string(camera.projection) << std::endl;
 	// std::cout << "View : " << glm::to_string(camera.view) << std::endl;
 
