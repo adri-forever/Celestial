@@ -16,6 +16,7 @@ private:
 
 public:
     PointMass() {}
+    PointMass(double imass);
     PointMass(double imass, glm::dvec3 p0, glm::dvec3 v0);
     ~PointMass() {}
 

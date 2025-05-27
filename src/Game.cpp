@@ -15,27 +15,6 @@ EntityManager Game::entityManager;
 OpenGLRenderer Game::glRenderer;
 std::vector<SDL_Event> Game::events;
 
-//Wacky init
-// auto& player(entityManager.addEntity());
-
-enum groupLabels : std::size_t {
-	groupMap,
-	groupPlayers,
-	groupEnemies,
-	groupColliders,
-	groupParticles,
-	groupUI
-};
-
-constexpr groupLabels groupOrder[] = {
-	groupLabels::groupMap,
-	groupLabels::groupPlayers,
-	groupLabels::groupEnemies,
-	groupLabels::groupColliders,
-	groupLabels::groupParticles,
-	groupLabels::groupUI
-};
-
 Game::Game() {}
 Game::~Game() {}
 
@@ -107,17 +86,26 @@ void Game::init(const char* title, int width, int height, SDL_WindowFlags flags)
 		e1.addComponent<TransformComponent>(0.f, 0.f, 0.f);
 		e1.addComponent<MeshComponent>(&glRenderer, &ico, color_red);
 		e1.getComponent<MeshComponent>().scale = glm::vec3(.5f);
+		e1.addComponent<PointMass>(1e6);
+		// auto* cam = &e1.getComponent<Camera>();
+		// if (cam) {
+		// 	std::cout << cam->active << std::endl;
+		// } else {
+		// 	std::cout << "Cam not found" << std::endl;
+		// }
 		// std::cout << e1.getComponent<TransformComponent>().position << std::endl;
 
 		auto& e2(entityManager.addEntity());
 		e2.addComponent<TransformComponent>(3.f, 0.f, 0.f);
 		e2.addComponent<MeshComponent>(&glRenderer, &coob, color_cyan);
 		e2.getComponent<MeshComponent>().scale.y = 5.f;
+		e2.addComponent<PointMass>(1e6);
 
 		auto& e3(entityManager.addEntity());
 		e3.addComponent<TransformComponent>(0.f, 5.f, 0.f);
 		e3.addComponent<MeshComponent>(&glRenderer, &ico, color_db);
 		e3.getComponent<MeshComponent>().scale = glm::vec3(.2f);
+		e3.addComponent<PointMass>(1e6);
 
 		auto& camera1(entityManager.addEntity());
 		camera1.addComponent<TransformComponent>(0.f, 1.5f, 3.f);
@@ -141,7 +129,7 @@ void Game::loadFont() {
 
 void Game::handleEvents() {
 	SDL_Event event;	
-
+	std::string message;
 	//Clear events vector
 	events.clear();
 
@@ -167,6 +155,12 @@ void Game::handleEvents() {
 					break;
 				case SDLK_TAB:
 					toggleCursor();
+					break;
+				case SDLK_P:
+					physics = !physics;
+					message = (physics) ? "ON" : "OFF";
+					std::cout << "Physics " << message << std::endl;
+					break;
 				default:
 					break;
 				}
@@ -178,6 +172,12 @@ void Game::handleEvents() {
 
 void Game::update(int framelength) {
 	entityManager.refresh();
+
+	double dt = (double)framelength/1000.;
+
+	if (physics) {
+		Physics::compute(&entityManager, dt);
+	}
 	entityManager.update();
 
 	age++;

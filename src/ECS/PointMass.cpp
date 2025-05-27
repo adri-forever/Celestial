@@ -2,6 +2,12 @@
 
 #include "ECS/TransformComponent.h"
 
+#include "Physics.h"
+
+PointMass::PointMass(double imass) {
+    setMass(imass);
+}
+
 PointMass::PointMass(double imass, glm::dvec3 p0, glm::dvec3 v0) {
     setMass(imass);
     dposition = p0;
@@ -9,7 +15,12 @@ PointMass::PointMass(double imass, glm::dvec3 p0, glm::dvec3 v0) {
 }
 
 void PointMass::init() {
+    entity->addGroup(Physics::physical);
 	transform = &entity->getComponent<TransformComponent>();
+
+    if (dposition==glm::dvec3(0.)) {
+        dposition = transform->position;
+    }
 }
 
 void PointMass::update() {

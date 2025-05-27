@@ -42,6 +42,7 @@ public:
 
 	MeshManager meshManager;
 
+	bool physics = false;
 	bool relativeState = false;
 	bool isRunning = false;
 	glm::ivec2 windowSize;

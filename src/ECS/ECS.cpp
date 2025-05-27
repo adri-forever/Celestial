@@ -1,10 +1,11 @@
 #include "ECS/ECS.h"
 
-#include <fstream>
+// #include <fstream>
 
+//Cannot be defined in header because of forward declaration
 void Entity::addGroup(Group iGroup) {
 	groupBitSet[iGroup] = true;
- 	eManager.addToGroup(this, iGroup);
+	eManager.addToGroup(this, iGroup);
 }
 
 void EntityManager::importEntities(std::string path) {
