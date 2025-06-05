@@ -15,7 +15,7 @@ include_directories("C:/repo/SDL3_gfx-1.0.1"
 "thirdparty/glad/include"
 "include" 
 "include/ECS" 
-"include/utils
+"include/utils"
 )
 
 # For lib files

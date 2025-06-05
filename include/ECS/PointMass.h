@@ -21,8 +21,13 @@ public:
     ~PointMass() {}
 
     glm::dvec3 dposition = glm::dvec3(0.);
+    glm::dvec3 dpositionm1 = glm::dvec3(0.); //last position, used for verlet
     glm::dvec3 dspeed = glm::dvec3(0.);
     glm::dvec3 dacc = glm::dvec3(0.);
+
+    std::vector<glm::dvec3> kv; //k coefficients for speed -- rk methods
+    std::vector<glm::dvec3> kp; //k coefficients for position
+    std::vector<glm::dvec3> pkp; //position to evaluate for each k level depending on our butcher table
 
     TransformComponent* transform;
 

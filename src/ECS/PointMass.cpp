@@ -11,6 +11,7 @@ PointMass::PointMass(double imass) {
 PointMass::PointMass(double imass, glm::dvec3 p0, glm::dvec3 v0) {
     setMass(imass);
     dposition = p0;
+    dpositionm1 = p0;
     dspeed = v0;
 }
 

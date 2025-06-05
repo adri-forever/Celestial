@@ -176,7 +176,7 @@ void Game::update(int framelength) {
 	double dt = (double)framelength/1000.;
 
 	if (physics) {
-		Physics::compute(&entityManager, dt);
+		Physics::compute_rk2(&entityManager, dt);
 	}
 	entityManager.update();
 
