@@ -18,6 +18,8 @@ public:
 	TransformComponent* transform;
 	Camera* camera;
 
+	bool listencontrols = true;
+
 	//Translation parameters
 	float hspeed = .2f;
 	float vspeed = .15f;

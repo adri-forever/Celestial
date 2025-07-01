@@ -18,6 +18,13 @@ std::vector<SDL_Event> Game::events;
 Game::Game() {}
 Game::~Game() {}
 
+void printm(Entity& e) {
+	std::cout << e.getComponent<PointMass>().getGravComp() << std::endl;
+	std::cout << e.getComponent<PointMass>().getMass() << std::endl;
+}
+
+
+
 void Game::init(const char* title, int width, int height, SDL_WindowFlags flags) {
 	if (!SDL_Init(0)) {
 		std::cout << "System initialization error: " << SDL_GetError() << std::endl;
@@ -66,8 +73,6 @@ void Game::init(const char* title, int width, int height, SDL_WindowFlags flags)
 			std::cout << "OpenGL not requested" << std::endl;
 		}
 
-		toggleCursor(relativeState); //sync without changing
-
 		isRunning = true;
 
 		//std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
@@ -86,32 +91,33 @@ void Game::init(const char* title, int width, int height, SDL_WindowFlags flags)
 		e1.addComponent<TransformComponent>(0.f, 0.f, 0.f);
 		e1.addComponent<MeshComponent>(&glRenderer, &ico, color_red);
 		e1.getComponent<MeshComponent>().scale = glm::vec3(.5f);
-		e1.addComponent<PointMass>(1e6);
-		// auto* cam = &e1.getComponent<Camera>();
-		// if (cam) {
-		// 	std::cout << cam->active << std::endl;
-		// } else {
-		// 	std::cout << "Cam not found" << std::endl;
-		// }
-		// std::cout << e1.getComponent<TransformComponent>().position << std::endl;
+		e1.addComponent<PointMass>(1.e6);
 
 		auto& e2(entityManager.addEntity());
-		e2.addComponent<TransformComponent>(3.f, 0.f, 0.f);
-		e2.addComponent<MeshComponent>(&glRenderer, &coob, color_cyan);
-		e2.getComponent<MeshComponent>().scale.y = 5.f;
-		e2.addComponent<PointMass>(1e6);
+		e2.addComponent<TransformComponent>(4.f, 0.f, 0.f);
+		e2.addComponent<MeshComponent>(&glRenderer, &ico, color_cyan);
+		e2.getComponent<MeshComponent>().scale = glm::vec3(.3f);
+		e2.addComponent<PointMass>(1.e6);
 
 		auto& e3(entityManager.addEntity());
 		e3.addComponent<TransformComponent>(0.f, 5.f, 0.f);
 		e3.addComponent<MeshComponent>(&glRenderer, &ico, color_db);
 		e3.getComponent<MeshComponent>().scale = glm::vec3(.2f);
-		e3.addComponent<PointMass>(1e6);
+		e3.addComponent<PointMass>(1.e6);
 
 		auto& camera1(entityManager.addEntity());
 		camera1.addComponent<TransformComponent>(0.f, 1.5f, 3.f);
 		camera1.addComponent<Camera>(&glRenderer);
 		camera1.addComponent<CamKeyboardController>();
 		mainCamera = &camera1;
+
+		printm(e1);
+		printm(e2);
+		printm(e3);
+
+		Physics::rkinit(&entityManager, klevel);
+
+		toggleCursor(relativeState); //sync without changing
 	}
 }
 
@@ -135,8 +141,10 @@ void Game::handleEvents() {
 
 	// std::cout<<"Newframe"<<std::endl;
 	while (SDL_PollEvent(&event)) {
-		events.push_back(event);
+		events.push_back(event); //Sends events to registered list for entities to process
 		// std::cout<<"polling event "<<event.type<<std::endl;
+		
+		//Still handle program wide events
 		switch (event.type) {
 			case SDL_EVENT_QUIT:
 				isRunning = false;
@@ -161,6 +169,8 @@ void Game::handleEvents() {
 					message = (physics) ? "ON" : "OFF";
 					std::cout << "Physics " << message << std::endl;
 					break;
+				case SDLK_N:
+					spawn(glm::dvec3(5., 0., 0.), glm::dvec3(0., 0., 0.), 1.e6, 1, "coob");
 				default:
 					break;
 				}
@@ -173,10 +183,11 @@ void Game::handleEvents() {
 void Game::update(int framelength) {
 	entityManager.refresh();
 
-	double dt = (double)framelength/1000.;
+	double dt = (double)framelength/10; // framelength is in ms and dt is in s. compute in your head what time ratio that makes
 
 	if (physics) {
 		Physics::compute_rk2(&entityManager, dt);
+		// Physics::compute(&entityManager, dt);
 	}
 	entityManager.update();
 
@@ -223,5 +234,17 @@ void Game::toggleCursor() {
 void Game::toggleCursor(bool state) {
 	SDL_SetWindowRelativeMouseMode(window, state);
 	SDL_WarpMouseInWindow(window, windowSize.x/2, windowSize.y/2);
+	if (mainCamera) {
+		mainCamera->getComponent<CamKeyboardController>().listencontrols = state;
+	}
 	relativeState = state;
+}
+
+void Game::spawn(glm::dvec3 p0, glm::dvec3 v0, double m, double size, std::string meshname) {
+    auto& e(entityManager.addEntity());
+    e.addComponent<TransformComponent>(0.f, 0.f, 0.f);
+    e.addComponent<MeshComponent>(&glRenderer, &meshManager.getMesh(meshname), glm::vec3(1.f, 1.f, 1.f));
+    e.getComponent<MeshComponent>().scale = glm::vec3(size);
+    e.addComponent<PointMass>(m, p0, v0);
+	e.getComponent<PointMass>().rkinit(klevel);
 }

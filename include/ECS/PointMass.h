@@ -24,8 +24,9 @@ public:
     glm::dvec3 dpositionm1 = glm::dvec3(0.); //last position, used for verlet
     glm::dvec3 dspeed = glm::dvec3(0.);
     glm::dvec3 dacc = glm::dvec3(0.);
+    glm::dvec3 force = glm::dvec3(0.);
 
-    std::vector<glm::dvec3> kv; //k coefficients for speed -- rk methods
+    std::vector<glm::dvec3> kv = {}; //k coefficients for speed -- rk methods
     std::vector<glm::dvec3> kp; //k coefficients for position
     std::vector<glm::dvec3> pkp; //position to evaluate for each k level depending on our butcher table
 
@@ -34,6 +35,8 @@ public:
     void setMass(double imass) { mass = imass; gravComp = mass*BIG_G; }
     double getMass() { return mass; }
     double getGravComp() { return gravComp; }
+
+    void rkinit(int klevel);
 
     void init() override;
     void update() override;

@@ -10,7 +10,20 @@
 
 #include "ECS/PointMass.h"
 
+class OpenGLRenderer;
+class MeshComponent;
+
 void Physics::echo() { std::cout << "It's physickin time" << std::endl; }
+
+void Physics::rkinit(EntityManager* emanager, int klevel) {
+    std::vector<Entity*> entities = emanager->getGroup(Physics::physical);
+    for (auto& e : entities) {
+        if (e->hasComponent<PointMass>()) {
+            e->getComponent<PointMass>().rkinit(klevel); //init rk
+        }
+    }
+    
+}
 
 glm::dvec3 Physics::eulerex(glm::dvec3 dv, glm::dvec3 v, double dt) {
     return v+dv*dt;
@@ -37,7 +50,7 @@ void Physics::calc_acc(std::vector<PointMass*> pms, int klevel) {
     glm::dvec3 dp1, dp2;
 
     for (auto& e : pms) {
-        e->dacc = glm::dvec3(0.);
+        e->force = glm::dvec3(0.);
     }
 
     for (int i=0; i<pms.size()-1; i++) {
@@ -52,15 +65,45 @@ void Physics::calc_acc(std::vector<PointMass*> pms, int klevel) {
             // std::cout << "Against entity number " << j << std::endl;
 
             //      vect a           Gm1                 m2                          vect e1e2                                  r2
-            glm::dvec3 lacc = e1->getGravComp() * e2->getMass() * glm::normalize(dp2 - dp1) / glm::distance2(dp1, dp2);
+            glm::dvec3 f = e1->getGravComp() * e2->getMass() * glm::normalize(dp2 - dp1) / glm::distance2(dp1, dp2); //this is force actually
 
-            // std::cout << "Acceleration of object " << i << " from object " << j << ": " << glm::to_string(lacc) << std::endl;
+            // std::cout << "Acceleration of object " << i << " from object " << j << ": " << glm::to_string(f) << std::endl;
 
-            e1->dacc += lacc;
-            e2->dacc -= lacc;
+            e1->force += f;
+            e2->force -= f;
         }
     }
+
+    for (auto& e : pms) {
+        e->dacc = e->force / e->getMass();
+    }
 }
+
+void printpos(PointMass* pm) {
+    std::cout << "Definite : " << std::endl;
+    std::cout << "\t" << "V = " << glm::to_string(pm->dspeed) << std::endl;
+    std::cout << "\t" << "P = " << glm::to_string(pm->dposition) << std::endl << std::endl;
+}
+
+void printms(PointMass* pm, int klevel) {
+    std::cout << "Speed K coefficients : " << std::endl;
+    for (int i=0; i<klevel; i++) {
+        std::cout << "\t" << "kv" << i+1 << " = " << glm::to_string(pm->kv[i]) << std::endl;
+    }
+    
+    std::cout << "Position K coefficients : " << std::endl;
+    for (int i=0; i<klevel; i++) {
+        std::cout << "\t" << "kp" << i+1 << " = " << glm::to_string(pm->kp[i]) << std::endl;
+    }
+
+    std::cout << "Estimated positions : " << std::endl;
+    for (int i=0; i<klevel-1; i++) {
+        std::cout << "\t" << "pkp" << i+1 << " = " << glm::to_string(pm->pkp[i]) << std::endl;
+    }
+
+    printpos(pm);
+}
+
 
 void Physics::compute_rk2(EntityManager* emanager, double dt) {
     std::vector<Entity*> entities = emanager->getGroup(Physics::physical);
@@ -69,13 +112,6 @@ void Physics::compute_rk2(EntityManager* emanager, double dt) {
         if (e->hasComponent<PointMass>()) {
             pms.emplace_back(&e->getComponent<PointMass>()); //add to our vector
         }
-    }
-
-    //prepare coefficients
-    for (auto& e : pms) {
-        e->kv.reserve(2);
-        e->kp.reserve(2);
-        e->pkp.reserve(2);
     }
 
     //k1
@@ -89,21 +125,21 @@ void Physics::compute_rk2(EntityManager* emanager, double dt) {
 
     //k2
     Physics::calc_acc(pms, 0); //acc
-    for (auto& e : pms) { //k1
+    for (auto& e : pms) { //k2
         e->kv[1] = e->dacc;
         e->kp[1] = e->kv[0];
     }
-
-    //acc a partir de k1
 
     //... kn 
 
     //calcule pos en abaissant les k selon la formule
     for (auto& e : pms) {
-        e->dposition += dt*e->kp[1];
-        e->dspeed += dt*e->kv[1]; 
+        e->dposition += 0.5*dt*(e->kp[0] + e->kp[1]);
+        e->dspeed += 0.5*dt*(e->kv[0] + e->kv[1]); 
     }
 
+    // printms(pms[pms.size()-1], 2);
+    printpos(pms[pms.size()-1]);
 }
 
 void Physics::compute(EntityManager* emanager, double dt) {
@@ -125,10 +161,8 @@ void Physics::compute(EntityManager* emanager, double dt) {
         PointMass* e = pms[i];
         
         //eulerex
-        {
         e->dspeed = Physics::eulerex(e->dacc, e->dspeed, dt);
         e->dposition = Physics::eulerex(e->dspeed, e->dposition, dt);
-        }
 
         //verlet
         //works like shite
@@ -140,7 +174,7 @@ void Physics::compute(EntityManager* emanager, double dt) {
         //     // speed is not needed here
         // }
 
-        if (i==0) {
+        if (i==2) {
             std::cout << "Object " << i << " : "<<std::endl;
             std::cout << "Acc : " << glm::to_string(e->dacc) << std::endl;
             std::cout << "Spe : " << glm::to_string(e->dspeed) << std::endl;

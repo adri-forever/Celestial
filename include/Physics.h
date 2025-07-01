@@ -15,11 +15,11 @@ namespace Physics {
 
     void echo();
 
+    void rkinit(EntityManager* emanager, int klevel);
+
     void calc_acc(std::vector<PointMass*> pms, int klevel);
 
     glm::dvec3 eulerex(glm::dvec3 dv, glm::dvec3 v, double dt); // Euler explicite
-    //Toutes ces methodes impliquent de pouvoir recalculer l'acceleration pour une nouvelle position donnee, chiant
-    //on peut faire la vitesse tjrs en euler, mais la position en rk ?
     glm::dvec3 rk2(glm::dvec3 dv, glm::dvec3 v, double dt); // Runge Kutta 2
     glm::dvec3 rk4(glm::dvec3 dv, glm::dvec3 v, double dt); // 4
     glm::dvec3 rk4d2(glm::dvec3 dv, glm::dvec3 v, double dt); // 4 avec derivee seconde
@@ -28,7 +28,6 @@ namespace Physics {
 
     glm::dvec3 verlet(glm::dvec3 acc, glm::dvec3 pos, glm::dvec3 posm1, double dt);
     
-
     void compute_rk2(EntityManager* emanager, double dt);
     void compute(EntityManager* emanager, double dt);
 }

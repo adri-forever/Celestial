@@ -15,6 +15,16 @@ PointMass::PointMass(double imass, glm::dvec3 p0, glm::dvec3 v0) {
     dspeed = v0;
 }
 
+void PointMass::rkinit(int klevel) {
+    kv.reserve(klevel);
+    kp.reserve(klevel);
+    pkp.reserve(klevel);
+
+    kv.resize(klevel);
+    kp.resize(klevel);
+    pkp.resize(klevel);
+}
+
 void PointMass::init() {
     entity->addGroup(Physics::physical);
 	transform = &entity->getComponent<TransformComponent>();

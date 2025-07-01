@@ -43,6 +43,7 @@ public:
 	MeshManager meshManager;
 
 	bool physics = false;
+	int klevel = 4;
 	bool relativeState = false;
 	bool isRunning = false;
 	glm::ivec2 windowSize;
@@ -62,7 +63,9 @@ public:
 	
 	void toggleCursor();
 	void toggleCursor(bool state);
-	//also lock mouse in the window when hidden 
+	//also lock mouse in the window when hidden
+
+	void spawn(glm::dvec3 p0, glm::dvec3 v0, double m, double size, std::string meshname);
 };
 
 #endif //Game_h

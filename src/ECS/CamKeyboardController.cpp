@@ -19,9 +19,17 @@ void CamKeyboardController::init() {
 }
 
 void CamKeyboardController::update() {
-	smart_direction();
-	for (SDL_Event event : Game::events) {
-		listen_input(event);
+	float xrel, yrel; //Registers mouse movements
+
+	SDL_GetRelativeMouseState(&xrel, &yrel);
+	if (listencontrols) {
+		smart_direction(); //For moving
+		for (SDL_Event event : Game::events) {
+			listen_input(event); //For regular keys
+		}
+		
+		//Applies mouse movement
+		angles += glm::vec3(sensitivity*yrel, sensitivity*xrel, 0.f);
 	}
 
 	movspeed = glm::clamp(movspeed+step*glm::vec3(direction), -speed, speed);
@@ -48,8 +56,6 @@ void CamKeyboardController::update() {
 }
 
 void CamKeyboardController::listen_input(SDL_Event event) {
-	float xrel, yrel;
-
 	switch (event.type) {
 		case SDL_EVENT_KEY_DOWN:
 			switch (event.key.scancode) {
@@ -69,10 +75,6 @@ void CamKeyboardController::listen_input(SDL_Event event) {
 		default:
 			break;
 	}
-
-	//Mouse movement
-	SDL_GetRelativeMouseState(&xrel, &yrel);
-	angles += glm::vec3(sensitivity*yrel, sensitivity*xrel, 0.f);
 }
 
 void CamKeyboardController::smart_direction() {
