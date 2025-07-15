@@ -7,22 +7,19 @@
 #include <SDL3_image/SDL_image.h>
 //#include <SDL3_gfxPrimitives.h>
 
-//OpenGL
-#include "glad/glad.h"
-#include "glm/glm.hpp"
-
 //std
 #include <iostream>
 #include <vector>
+
+//OpenGL
+#include "glad/glad.h"
+#include "glm/glm.hpp"
 
 //Project classes
 #include "MeshManager.h"
 #include "OpenGLRenderer.h"
 #include "utils/glUtils.h"
 #include "ECS/Components.h"
-
-//Utils
-// #include "utils/Vector2.h"
 
 class Game {
 private:

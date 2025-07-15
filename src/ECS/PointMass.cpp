@@ -29,6 +29,11 @@ void PointMass::init() {
     entity->addGroup(Physics::physical);
 	transform = &entity->getComponent<TransformComponent>();
 
+    if (!entity->hasComponent<TransformComponent>()) {
+        entity->addComponent<TransformComponent>(dposition.x, dposition.y, dposition.z);
+	    transform = &entity->getComponent<TransformComponent>(); //test if this works
+    }
+
     if (dposition==glm::dvec3(0.)) {
         dposition = transform->position;
     }

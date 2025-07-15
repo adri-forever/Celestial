@@ -4,28 +4,28 @@
 #include <sstream>
 
 Mesh::Mesh(std::string filepath) {
-    if (loadObj(filepath)) {
-        // Generate and bind the Vertex Array Object
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
-        //std::cout << "Binding VAO " << VAO << std::endl;
+	if (loadObj(filepath)) {
+		// Generate and bind the Vertex Array Object
+		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
+		//std::cout << "Binding VAO " << VAO << std::endl;
 
-        // Generate and bind the Vertex Buffer Object
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
-        //std::cout << "Binding VBO " << VBO << std::endl;
+		// Generate and bind the Vertex Buffer Object
+		glGenBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+		//std::cout << "Binding VBO " << VBO << std::endl;
 
-        // Position attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
+		// Position attribute
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
 
-        // Unbind the VAO and VBO
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-    } else {
-        std::cout << "Failed to load mesh " << filepath << std::endl;
-    }
+		// Unbind the VAO and VBO
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	} else {
+		std::cout << "Failed to load mesh " << filepath << std::endl;
+	}
 }
 
 Mesh::~Mesh() {
@@ -136,15 +136,32 @@ bool Mesh::loadObj(std::string filepath) {
 	return true;
 }
 
-Mesh& MeshManager::loadMesh(std::string name, std::string filepath) {
-    Mesh* m = new Mesh(filepath);
-    // m->loadObj(filepath);
-    std::unique_ptr<Mesh> uPtr{ m };
-    meshes.emplace_back(std::move(uPtr));
-    map.emplace(name, meshes.size()-1);
-    return *m;
+Mesh* MeshManager::loadMesh(std::string name, std::string filepath) {
+	Mesh* m = new Mesh(filepath);
+	// m->loadObj(filepath);
+	std::unique_ptr<Mesh> uPtr{ m };
+	meshes.emplace_back(std::move(uPtr));
+	map.emplace(name, meshes.size()-1);
+	return m;
 }
 
-Mesh& MeshManager::getMesh(std::string name) {
-    return *meshes[map[name]];
+Mesh* MeshManager::getMesh(std::string name) {
+	Mesh* a = nullptr;
+
+	if (map.find(name) != map.end()) {
+		a = meshes[map[name]].get();
+	} else {
+		std::cout << "No mesh named " << name << std::endl;
+	}
+	return a;
+}
+
+Mesh* MeshManager::getMesh_index(int i) {
+	Mesh* a = nullptr;
+	if (i < meshes.size()) {
+		a = meshes[i].get();
+	} else {
+		std::cout << "No mesh with index " << i << " (max: "<< meshes.size()-1 << ")" << std::endl;
+	}
+	return a;
 }

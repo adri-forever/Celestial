@@ -1,19 +1,113 @@
 #include "Physics.h"
 
+//std
+#include <fstream>
+#include <sstream>
+
+// personal includes
+#include "MeshManager.h"
+#include "ECS/PointMass.h"
+#include "ECS/MeshComponent.h"
+#include "ECS/Camera.h"
+#include "ECS/CamKeyboardController.h"
+#include "utils/toolbox.h"
+
+// thirdparty
+#include "nlohmann/json.hpp"
+
+    // GL bazar
 #ifndef GLM_ENABLE_EXPERIMENTAL
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/string_cast.hpp"
+#endif //!GLM_ENABLE_EXPERIMENTAL
 
 #include "glm/gtx/norm.hpp"
 
-#endif //!GLM_ENABLE_EXPERIMENTAL
-
-#include "ECS/PointMass.h"
-
-class OpenGLRenderer;
-class MeshComponent;
+using json = nlohmann::json;
 
 void Physics::echo() { std::cout << "It's physickin time" << std::endl; }
+
+void Physics::import(std::string scriptpath, EntityManager* emanager, OpenGLRenderer* glRenderer, MeshManager* meshManager) {
+    // Read input file
+    std::ifstream f {scriptpath};
+    json data = json::parse(f);
+
+    // Load entities
+    std::string name;
+    glm::vec3 color;
+    glm::dvec3 p0, v0;
+    double radius, mass;
+
+    Entity* e = nullptr;
+    Camera* cam = nullptr;
+    CamKeyboardController* ckc = nullptr;
+    if (data["objects"].is_array()) {
+        for (int i=0; i < data["objects"].size(); i++) {
+            if (data["objects"][i]["name"].is_string()) {
+                name = data["objects"][i]["name"];
+            } else {
+                name = std::to_string(i);
+            }
+            std::cout << "Importing entity " << name << std::endl;
+            // std::cout << data["objects"][i] << std::endl;
+
+            if (data["objects"][i]["radius"].is_number()) {
+                radius = data["objects"][i]["radius"];
+            }
+            if (data["objects"][i]["mass"].is_number()) {
+                mass = data["objects"][i]["mass"];
+            }
+
+            e = &emanager->addEntity();
+            // e->addComponent<TransformComponent>();
+            e->addComponent<MeshComponent>(glRenderer, meshManager->getMesh_index(0), parseHexColor_json(data["objects"][i]["color"]));
+            e->getComponent<MeshComponent>().scale = glm::vec3(radius);
+            e->addComponent<PointMass>(mass, parseDvec3(data["objects"][i]["p0"]), parseDvec3(data["objects"][i]["v0"]));
+            e->getComponent<PointMass>().rkinit(Physics::rklevel);
+        }
+    }
+
+    if(data["camera"].is_object()) {
+        for (auto& e : emanager->getGroup(camera)) {
+            cam = &e->getComponent<Camera>();
+            if (e->hasComponent<CamKeyboardController>()) {
+                ckc = &e->getComponent<CamKeyboardController>();
+            }
+
+            if (e->getComponent<Camera>().active) {
+                if (data["camera"]["farplane"].is_number()) {
+                    cam->farplane = data["camera"]["farplane"];
+                }
+                if (data["camera"]["nearplane"].is_number()) {
+                    cam->farplane = data["camera"]["nearplane"];
+                }
+
+                if (ckc) {   
+                    if (data["camera"]["person"].is_string()) {
+                        if (data["camera"]["person"] == "third") {
+                            ckc->person = "third";
+                        } else {
+                            ckc->person = "first";
+                        }
+                    }
+                    if (data["camera"]["distance"].is_number()) {
+                        ckc->distance = data["camera"]["distance"];
+                    }
+                    if (data["camera"]["speedfactor"].is_number()) {
+                        ckc->speed *= data["camera"]["speedfactor"];
+                    }
+                    if (data["camera"]["position"].is_array()) {
+                        ckc->cameraTarget = (glm::vec3)parseDvec3(data["camera"]["position"]);
+                    }
+                }
+
+                cam->updateProjection();
+                
+                break; //only update the active camera
+            }
+        }
+    }
+}
 
 void Physics::rkinit(EntityManager* emanager, int klevel) {
     std::vector<Entity*> entities = emanager->getGroup(Physics::physical);
@@ -23,6 +117,10 @@ void Physics::rkinit(EntityManager* emanager, int klevel) {
         }
     }
     
+}
+
+void Physics::rkinit(EntityManager* emanager) {
+    Physics::rkinit(emanager, Physics::rklevel);
 }
 
 glm::dvec3 Physics::eulerex(glm::dvec3 dv, glm::dvec3 v, double dt) {

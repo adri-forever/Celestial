@@ -55,6 +55,11 @@ public:
 	void update_firstperson(glm::quat yaw, glm::quat pitch);
 	void update_thirdperson(glm::quat yaw, glm::quat pitch);
 
+	float defaultzoomfactor = 2.f;
+	void zoom(float value);
+	void zoomin() { zoom(defaultzoomfactor); }
+	void zoomout() { zoom(1.f/defaultzoomfactor); }
+
 	void switchPerson();
 
 };

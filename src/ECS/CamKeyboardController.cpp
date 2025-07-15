@@ -1,6 +1,8 @@
 #include "ECS/CamKeyboardController.h"
 
-#include "Game.h"
+#include "Game.h" //including game actually makes it refer to everything, but in the cpp files its okay
+#include "ECS/TransformComponent.h"
+#include "ECS/Camera.h"
 
 #ifndef GLM_ENABLE_EXPERIMENTAL
 #define GLM_ENABLE_EXPERIMENTAL
@@ -61,6 +63,10 @@ void CamKeyboardController::listen_input(SDL_Event event) {
 			switch (event.key.scancode) {
 				case SDL_SCANCODE_F5:
 					switchPerson();
+					break;
+				case SDL_SCANCODE_KP_PLUS:
+					break;
+				case SDL_SCANCODE_KP_MINUS:
 					break;
 				default:
 					break;
@@ -123,6 +129,20 @@ void CamKeyboardController::update_thirdperson(glm::quat yaw, glm::quat pitch) {
 	transform->position = rot*glm::vec3(0.f, 0.f, distance) + cameraTarget;
 
 	camera->view = glm::lookAt(transform->position, cameraTarget, up);
+}
+
+void CamKeyboardController::zoom(float value) {
+	camera->farplane *= value;
+	camera->nearplane *= value;
+
+	camera->height *= value;
+	camera->width *= value;
+	
+	distance *= value;
+	speed *= value;
+
+	camera->updateProjection();
+	std::cout << "Near & far plane distance: " << camera->nearplane << "-" << camera->farplane << std::endl;
 }
 
 void CamKeyboardController::switchPerson() {

@@ -17,6 +17,10 @@
  
 //2d orthographic projection camera, it completely ignores the z axis (and does not handle depth)
 
+enum groups : std::size_t {
+	camera
+};
+
 class Camera : public Component {
 private:
 
@@ -51,6 +55,7 @@ public:
 	void setOrtho();
 
 	void updateProjection(float aspect);
+	void updateProjection() { updateProjection(-1.f); }
 
 	void setCamera();
 };

@@ -14,6 +14,7 @@ Camera::Camera(OpenGLRenderer* renderer) {
 void Camera::init() {
     transform = &entity->getComponent<TransformComponent>();
 
+    entity->addGroup(camera);
     // std::cout << glm::to_string(transform->position) << std::endl;
     
     // ortho = true;
@@ -47,13 +48,11 @@ void Camera::setOrtho() {
 }
 
 void Camera::updateProjection(float aspect) {
-    //In case of invalid aspect ratio, don t change it
-    if (aspect <= .01f) {
-        aspect = aspectR;
+    //Pass aspect < 0 to just refresh the matrices
+    if (aspect > 0.f) {
+        aspectR = aspect;
+        width = height*aspect;
     }
-
-    aspectR = aspect;
-    width = height*aspect;
 
     if (ortho) {
         setOrtho();

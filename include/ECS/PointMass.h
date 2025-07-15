@@ -21,7 +21,7 @@ public:
     ~PointMass() {}
 
     glm::dvec3 dposition = glm::dvec3(0.);
-    glm::dvec3 dpositionm1 = glm::dvec3(0.); //last position, used for verlet
+    glm::dvec3 dpositionm1 = glm::dvec3(0.); //last position, used for verlet -> to be deleted, we can use pkp[0]
     glm::dvec3 dspeed = glm::dvec3(0.);
     glm::dvec3 dacc = glm::dvec3(0.);
     glm::dvec3 force = glm::dvec3(0.);

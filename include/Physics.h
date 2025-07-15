@@ -6,16 +6,24 @@
 
 #include "glm/glm.hpp"
 
+
 class PointMass;
+class OpenGLRenderer;
+class MeshManager;
 
 namespace Physics {
     enum groups : std::size_t {
         physical
     };
 
+    static int rklevel = 4;
+
     void echo();
 
+    void import(std::string scriptpath, EntityManager* emanager, OpenGLRenderer* glRenderer, MeshManager* meshManager);
+    
     void rkinit(EntityManager* emanager, int klevel);
+    void rkinit(EntityManager* emanager);
 
     void calc_acc(std::vector<PointMass*> pms, int klevel);
 

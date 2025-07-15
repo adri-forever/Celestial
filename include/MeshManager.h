@@ -10,7 +10,6 @@
 #include "glad/glad.h"
 #include "glm/glm.hpp"
 
-//Will be renamed Mesh. Current Mesh object shall ultimately be renamed to MeshComponent, or something like that
 //is this necessary ? we dont need to store all that do we. only store a vector of VAO
 // not all that BUT YES IT IS. We need an object to store VAO and VBO so we can free them at the end of the program
 // dont really care that much about optimizing. hell, im not going load 500 different meshes with all 50k faces, am i
@@ -18,6 +17,8 @@ class Mesh {
 public:
     Mesh(std::string filepath);
     ~Mesh();
+
+    float scale = 1.f;
 
     std::vector<glm::vec3> vertices;
 	std::vector<glm::vec2> uvs;
@@ -38,10 +39,12 @@ private:
     std::unordered_map<std::string, int> map;
 
 public:
-    Mesh& loadMesh(std::string name, std::string filepath); //create new mesh object and add it to our list
+    Mesh* loadMesh(std::string name, std::string filepath); //create new mesh object and add it to our list
 
-    Mesh& getMesh(std::string name); //returns VAO for requested mesh. returns -1 if non existent
+    // ~MeshManager();
 
+    Mesh* getMesh(std::string name); //returns VAO for requested mesh. returns -1 if non existent
+    Mesh* getMesh_index(int i);
 };
 
 #endif //MESHMANAGER_H

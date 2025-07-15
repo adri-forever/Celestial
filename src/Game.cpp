@@ -23,8 +23,6 @@ void printm(Entity& e) {
 	std::cout << e.getComponent<PointMass>().getMass() << std::endl;
 }
 
-
-
 void Game::init(const char* title, int width, int height, SDL_WindowFlags flags) {
 	if (!SDL_Init(0)) {
 		std::cout << "System initialization error: " << SDL_GetError() << std::endl;
@@ -81,29 +79,8 @@ void Game::init(const char* title, int width, int height, SDL_WindowFlags flags)
 
 		Physics::echo();
 
-		Mesh& ico = meshManager.loadMesh("ico", "./assets/models/ico.obj");
-		Mesh& coob = meshManager.loadMesh("coob", "./assets/models/coob.obj");
-
-		glm::vec3 color_red(1.f, 0.f, 0.f);
-		glm::vec3 color_cyan(0.f, 1.f, 1.f);
-		glm::vec3 color_db(0.5f, .1f, .1f);
-		auto& e1(entityManager.addEntity());
-		e1.addComponent<TransformComponent>(0.f, 0.f, 0.f);
-		e1.addComponent<MeshComponent>(&glRenderer, &ico, color_red);
-		e1.getComponent<MeshComponent>().scale = glm::vec3(.5f);
-		e1.addComponent<PointMass>(1.e6);
-
-		auto& e2(entityManager.addEntity());
-		e2.addComponent<TransformComponent>(4.f, 0.f, 0.f);
-		e2.addComponent<MeshComponent>(&glRenderer, &ico, color_cyan);
-		e2.getComponent<MeshComponent>().scale = glm::vec3(.3f);
-		e2.addComponent<PointMass>(1.e6);
-
-		auto& e3(entityManager.addEntity());
-		e3.addComponent<TransformComponent>(0.f, 5.f, 0.f);
-		e3.addComponent<MeshComponent>(&glRenderer, &ico, color_db);
-		e3.getComponent<MeshComponent>().scale = glm::vec3(.2f);
-		e3.addComponent<PointMass>(1.e6);
+		Mesh* ico = meshManager.loadMesh("ico", "./assets/models/ico.obj");
+		Mesh* coob = meshManager.loadMesh("coob", "./assets/models/coob.obj");
 
 		auto& camera1(entityManager.addEntity());
 		camera1.addComponent<TransformComponent>(0.f, 1.5f, 3.f);
@@ -111,11 +88,34 @@ void Game::init(const char* title, int width, int height, SDL_WindowFlags flags)
 		camera1.addComponent<CamKeyboardController>();
 		mainCamera = &camera1;
 
-		printm(e1);
-		printm(e2);
-		printm(e3);
+		Physics::import("assets/physcripts/0.json", &entityManager, &glRenderer, &meshManager);
 
-		Physics::rkinit(&entityManager, klevel);
+		// glm::vec3 color_red(1.f, 0.f, 0.f);
+		// glm::vec3 color_cyan(0.f, 1.f, 1.f);
+		// glm::vec3 color_db(0.5f, .1f, .1f);
+		// auto& e1(entityManager.addEntity());
+		// e1.addComponent<TransformComponent>(0.f, 0.f, 0.f);
+		// e1.addComponent<MeshComponent>(&glRenderer, &ico, color_red);
+		// e1.getComponent<MeshComponent>().scale = glm::vec3(.5f);
+		// e1.addComponent<PointMass>(1.e6);
+
+		// auto& e2(entityManager.addEntity());
+		// e2.addComponent<TransformComponent>(4.f, 0.f, 0.f);
+		// e2.addComponent<MeshComponent>(&glRenderer, &ico, color_cyan);
+		// e2.getComponent<MeshComponent>().scale = glm::vec3(.3f);
+		// e2.addComponent<PointMass>(1.e6);
+
+		// auto& e3(entityManager.addEntity());
+		// e3.addComponent<TransformComponent>(0.f, 5.f, 0.f);
+		// e3.addComponent<MeshComponent>(&glRenderer, &ico, color_db);
+		// e3.getComponent<MeshComponent>().scale = glm::vec3(.2f);
+		// e3.addComponent<PointMass>(1.e6);
+
+		// printm(e1);
+		// printm(e2);
+		// printm(e3);
+
+		// Physics::rkinit(&entityManager, klevel);
 
 		toggleCursor(relativeState); //sync without changing
 	}
@@ -243,7 +243,7 @@ void Game::toggleCursor(bool state) {
 void Game::spawn(glm::dvec3 p0, glm::dvec3 v0, double m, double size, std::string meshname) {
     auto& e(entityManager.addEntity());
     e.addComponent<TransformComponent>(0.f, 0.f, 0.f);
-    e.addComponent<MeshComponent>(&glRenderer, &meshManager.getMesh(meshname), glm::vec3(1.f, 1.f, 1.f));
+    e.addComponent<MeshComponent>(&glRenderer, meshManager.getMesh(meshname), glm::vec3(1.f, 1.f, 1.f));
     e.getComponent<MeshComponent>().scale = glm::vec3(size);
     e.addComponent<PointMass>(m, p0, v0);
 	e.getComponent<PointMass>().rkinit(klevel);
