@@ -7,23 +7,25 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-include_directories("C:/repo/SDL3_gfx-1.0.1" 
-"C:/repo/SDL3_ttf-3.2.2/include" 
-"C:/repo/SDL3_image-3.2.4/include" 
-"C:/repo/SDL3-3.2.10/include" 
-"C:/repo/glm-1.0.1"
-"thirdparty"
-"thirdparty/glad/include"
-"include" 
-"include/ECS" 
-"include/utils"
+include_directories(
+    "thirdparty/SDL3_gfx-1.0.1" 
+    "thirdparty/SDL3_ttf-3.2.2/include" 
+    "thirdparty/SDL3_image-3.2.4/include" 
+    "thirdparty/SDL3-3.2.10/include" 
+    "thirdparty/glm-1.0.1"
+    "thirdparty"
+    "thirdparty/glad/include"
+    "include" 
+    "include/ECS" 
+    "include/utils"
 )
 
 # For lib files
-link_directories("C:/repo/SDL3-3.2.10/lib/x64"
-"C:/repo/SDL3_ttf-3.2.2/lib/x64"
-"C:/repo/SDL3_image-3.2.4/lib/x64"
-"C:/repo/SDL3_gfx-1.0.1/x64/Release" 
+link_directories(
+    "thirdparty/SDL3-3.2.10/lib/x64"
+    "thirdparty/SDL3_ttf-3.2.2/lib/x64"
+    "thirdparty/SDL3_image-3.2.4/lib/x64"
+    "thirdparty/SDL3_gfx-1.0.1/x64/Release" 
 )
 
 # Bad way to link all cpp
@@ -33,9 +35,9 @@ list(APPEND SOURCES "thirdparty/glad/src/glad.c")
 add_executable(Celestial ${SOURCES})
 
 target_link_libraries(Celestial PRIVATE SDL3 
-SDL3_ttf 
-SDL3_image 
-SDL3_gfx 
+    SDL3_ttf 
+    SDL3_image 
+    SDL3_gfx 
 )
 
 if (WIN32)
@@ -50,9 +52,10 @@ endif()
 
 # Find all .dll files in the thirdparty directory
 file(GLOB DLLS "${CMAKE_SOURCE_DIR}/thirdparty/bin/*.dll")
-list(APPEND DLLS "C:/msys64/mingw64/bin/libgcc_s_seh-1.dll"
-"C:/msys64/mingw64/bin/libstdc++-6.dll"
-"C:/msys64/mingw64/bin/libwinpthread-1.dll"
+list(APPEND DLLS
+    "C:/msys64/mingw64/bin/libgcc_s_seh-1.dll"
+    "C:/msys64/mingw64/bin/libstdc++-6.dll"
+    "C:/msys64/mingw64/bin/libwinpthread-1.dll"
 )
 # Copy the .dll files to the target output directory after building
 add_custom_command(TARGET Celestial POST_BUILD
@@ -64,4 +67,5 @@ add_custom_command(TARGET Celestial POST_BUILD
 add_custom_command(TARGET Celestial POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_SOURCE_DIR}/assets
-    ${CMAKE_BINARY_DIR}/assets)
+    ${CMAKE_BINARY_DIR}/assets
+)
