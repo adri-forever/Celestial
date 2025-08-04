@@ -41,6 +41,8 @@ void Physics::import(std::string scriptpath, EntityManager* emanager, OpenGLRend
     Entity* e = nullptr;
     Camera* cam = nullptr;
     CamKeyboardController* ckc = nullptr;
+    TransformComponent* tc = nullptr;
+
     if (data["objects"].is_array()) {
         for (int i=0; i < data["objects"].size(); i++) {
             if (data["objects"][i]["name"].is_string()) {
@@ -52,14 +54,15 @@ void Physics::import(std::string scriptpath, EntityManager* emanager, OpenGLRend
             // std::cout << data["objects"][i] << std::endl;
 
             if (data["objects"][i]["radius"].is_number()) {
-                radius = data["objects"][i]["radius"];
+                radius = 1000.*(double)data["objects"][i]["radius"];
             }
             if (data["objects"][i]["mass"].is_number()) {
                 mass = data["objects"][i]["mass"];
             }
 
             e = &emanager->addEntity();
-            // e->addComponent<TransformComponent>();
+            e->tag = name;
+            e->addComponent<TransformComponent>();
             e->addComponent<MeshComponent>(glRenderer, meshManager->getMesh_index(0), parseHexColor_json(data["objects"][i]["color"]));
             e->getComponent<MeshComponent>().scale = glm::vec3(radius);
             e->addComponent<PointMass>(mass, parseDvec3(data["objects"][i]["p0"]), parseDvec3(data["objects"][i]["v0"]));
@@ -73,13 +76,18 @@ void Physics::import(std::string scriptpath, EntityManager* emanager, OpenGLRend
             if (e->hasComponent<CamKeyboardController>()) {
                 ckc = &e->getComponent<CamKeyboardController>();
             }
+            if (e->hasComponent<TransformComponent>()) {
+                tc = &e->getComponent<TransformComponent>();
+            }
 
             if (e->getComponent<Camera>().active) {
+                std::cout << "Updating " << e->tag << std::endl;
+                
                 if (data["camera"]["farplane"].is_number()) {
                     cam->farplane = data["camera"]["farplane"];
                 }
                 if (data["camera"]["nearplane"].is_number()) {
-                    cam->farplane = data["camera"]["nearplane"];
+                    cam->nearplane = data["camera"]["nearplane"];
                 }
 
                 if (ckc) {   

@@ -25,6 +25,8 @@ void Camera::update() {
 	for (SDL_Event event : Game::events) {
 		listen_input(event);
 	}
+
+    std::cout << "nearplane " << nearplane << "; farplane " << farplane << std::endl;
 }
 
 void Camera::listen_input(SDL_Event event) {

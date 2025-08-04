@@ -13,11 +13,15 @@ MeshComponent::~MeshComponent() {
 
 
 void MeshComponent::init() {
-	transform = &entity->getComponent<TransformComponent>();
+	if (entity->hasComponent<TransformComponent>()) {
+		transform = &entity->getComponent<TransformComponent>();
+	} else {
+		std::cout << "Could not find TransformComponent for entity " << entity->tag << std::endl;
+	}
 }
 
 void MeshComponent::render() {
-	if (mesh) {
+	if (mesh && transform) {
 		GLint uniformLoc = glGetUniformLocation(glRenderer->shaderProgram, "color");
 		
 		mesh->bind();

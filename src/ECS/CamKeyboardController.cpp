@@ -34,7 +34,7 @@ void CamKeyboardController::update() {
 		angles += glm::vec3(sensitivity*yrel, sensitivity*xrel, 0.f);
 	}
 
-	movspeed = glm::clamp(movspeed+step*glm::vec3(direction), -speed, speed);
+	movspeed = glm::clamp(movspeed+step*glm::vec3(direction)*speed, -speed, speed);
 	// std::cout << "movspeed " << glm::to_string(movspeed) << std::endl;
 	for (int i=0; i<3; i++) {
 		//if we are not sliding, are moving in that coordinate, and have no input in that coordinate, slow it down
@@ -55,6 +55,8 @@ void CamKeyboardController::update() {
 	} else {
 		update_thirdperson(yaw, pitch);
 	}
+
+	// std::cout << "campos " << glm::to_string(transform->position) << "; speedfactor " << glm::to_string(speed) << std::endl;
 }
 
 void CamKeyboardController::listen_input(SDL_Event event) {
@@ -65,8 +67,10 @@ void CamKeyboardController::listen_input(SDL_Event event) {
 					switchPerson();
 					break;
 				case SDL_SCANCODE_KP_PLUS:
+					zoom(1./1.2);
 					break;
 				case SDL_SCANCODE_KP_MINUS:
+					zoom(1.2);
 					break;
 				default:
 					break;

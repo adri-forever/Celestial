@@ -57,7 +57,10 @@ private:
 
 public:
 	Entity(EntityManager& iManager) : eManager(iManager) {}
+	Entity(EntityManager& iManager, std::string itag) : eManager(iManager), tag(itag) {}
 	~Entity() {};
+
+	std::string tag;
 
 	void update() {	for (auto& c : components) { c->update(); } }
 	void render() { for (auto& c : components) { c->render(); } }

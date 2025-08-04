@@ -4,6 +4,11 @@
 
 #include "Physics.h"
 
+#ifndef GLM_ENABLE_EXPERIMENTAL
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/string_cast.hpp"
+#endif //!GLM_ENABLE_EXPERIMENTAL
+
 PointMass::PointMass(double imass) {
     setMass(imass);
 }
@@ -27,12 +32,12 @@ void PointMass::rkinit(int klevel) {
 
 void PointMass::init() {
     entity->addGroup(Physics::physical);
-	transform = &entity->getComponent<TransformComponent>();
 
-    if (!entity->hasComponent<TransformComponent>()) {
-        entity->addComponent<TransformComponent>(dposition.x, dposition.y, dposition.z);
-	    transform = &entity->getComponent<TransformComponent>(); //test if this works
-    }
+    if (entity->hasComponent<TransformComponent>()) {
+	    transform = &entity->getComponent<TransformComponent>();
+    } else {
+		std::cout << "Could not find TransformComponent for entity " << entity->tag << std::endl;
+	}
 
     if (dposition==glm::dvec3(0.)) {
         dposition = transform->position;
@@ -40,5 +45,11 @@ void PointMass::init() {
 }
 
 void PointMass::update() {
-    transform->position = dposition; //apparently they implemented implicit conversion from dvec3 to vec3
+    if (transform) {
+        transform->position = dposition; //apparently they implemented implicit conversion from dvec3 to vec3
+    }
+
+    if (entity->tag=="moon") {
+        std::cout << glm::to_string(dposition) << std::endl;
+    }
 }

@@ -83,6 +83,7 @@ void Game::init(const char* title, int width, int height, SDL_WindowFlags flags)
 		Mesh* coob = meshManager.loadMesh("coob", "./assets/models/coob.obj");
 
 		auto& camera1(entityManager.addEntity());
+		camera1.tag = "thecam";
 		camera1.addComponent<TransformComponent>(0.f, 1.5f, 3.f);
 		camera1.addComponent<Camera>(&glRenderer);
 		camera1.addComponent<CamKeyboardController>();
@@ -183,7 +184,7 @@ void Game::handleEvents() {
 void Game::update(int framelength) {
 	entityManager.refresh();
 
-	double dt = (double)framelength/10; // framelength is in ms and dt is in s. compute in your head what time ratio that makes
+	double dt = (double)framelength/1000; // framelength is in ms and dt is in s. compute in your head what time ratio that makes
 
 	if (physics) {
 		Physics::compute_rk2(&entityManager, dt);
