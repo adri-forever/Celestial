@@ -8,7 +8,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 include_directories(
-    "thirdparty/SDL3_gfx-1.0.1" 
     "thirdparty/SDL3_ttf-3.2.2/include" 
     "thirdparty/SDL3_image-3.2.4/include" 
     "thirdparty/SDL3-3.2.10/include" 
@@ -20,13 +19,14 @@ include_directories(
     "include/utils"
 )
 
+if (WIN32)
 # For lib files
 link_directories(
     "thirdparty/SDL3-3.2.10/lib/x64"
     "thirdparty/SDL3_ttf-3.2.2/lib/x64"
     "thirdparty/SDL3_image-3.2.4/lib/x64"
-    "thirdparty/SDL3_gfx-1.0.1/x64/Release" 
 )
+endif()
 
 # Bad way to link all cpp
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
@@ -34,10 +34,12 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 list(APPEND SOURCES "thirdparty/glad/src/glad.c")
 add_executable(Celestial ${SOURCES})
 
+if (NOT WIN32)
+    find_package(SDL3 REQUIRED)
+endif()
 target_link_libraries(Celestial PRIVATE SDL3 
     SDL3_ttf 
-    SDL3_image 
-    SDL3_gfx 
+    SDL3_image
 )
 
 if (WIN32)
@@ -50,19 +52,22 @@ if (WIN32)
     endif()
 endif()
 
-# Find all .dll files in the thirdparty directory
-file(GLOB DLLS "${CMAKE_SOURCE_DIR}/thirdparty/bin/*.dll")
-list(APPEND DLLS
-    "C:/msys64/mingw64/bin/libgcc_s_seh-1.dll"
-    "C:/msys64/mingw64/bin/libstdc++-6.dll"
-    "C:/msys64/mingw64/bin/libwinpthread-1.dll"
-)
-# Copy the .dll files to the target output directory after building
-add_custom_command(TARGET Celestial POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${DLLS}
-        $<TARGET_FILE_DIR:Celestial>
-)
+if (WIN32)
+    # Find all .dll files in the thirdparty directory
+    file(GLOB DLLS "${CMAKE_SOURCE_DIR}/thirdparty/bin/*.dll")
+    list(APPEND DLLS
+        "C:/msys64/mingw64/bin/libgcc_s_seh-1.dll"
+        "C:/msys64/mingw64/bin/libstdc++-6.dll"
+        "C:/msys64/mingw64/bin/libwinpthread-1.dll"
+    )
+    # Copy the .dll files to the target output directory after building
+    add_custom_command(TARGET Celestial POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${DLLS}
+            $<TARGET_FILE_DIR:Celestial>
+    )
+endif()
+
 # Remove already present assets
 add_custom_command(TARGET Celestial POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E remove_directory

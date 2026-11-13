@@ -89,7 +89,7 @@ void Game::init(const char* title, int width, int height, SDL_WindowFlags flags)
 		camera1.addComponent<CamKeyboardController>();
 		mainCamera = &camera1;
 
-		Physics::import("assets/physcripts/0.json", &entityManager, &glRenderer, &meshManager);
+		Physics::import("assets/physcripts/1.json", &entityManager, &glRenderer, &meshManager);
 
 		// glm::vec3 color_red(1.f, 0.f, 0.f);
 		// glm::vec3 color_cyan(0.f, 1.f, 1.f);
