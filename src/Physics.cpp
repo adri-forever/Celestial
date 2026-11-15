@@ -27,7 +27,7 @@ using json = nlohmann::json;
 
 void Physics::echo() { std::cout << "It's physickin time" << std::endl; }
 
-void Physics::import(std::string scriptpath, EntityManager* emanager, OpenGLRenderer* glRenderer, MeshManager* meshManager) {
+void Physics::import(std::string scriptpath, EntityManager* emanager, Renderer* renderer, MeshManager* meshManager) {
     // Read input file
     std::ifstream f {scriptpath};
     json data = json::parse(f);
@@ -63,7 +63,7 @@ void Physics::import(std::string scriptpath, EntityManager* emanager, OpenGLRend
             e = &emanager->addEntity();
             e->tag = name;
             e->addComponent<TransformComponent>();
-            e->addComponent<MeshComponent>(glRenderer, meshManager->getMesh_index(0), parseHexColor_json(data["objects"][i]["color"]));
+            e->addComponent<MeshComponent>(renderer, meshManager->getMesh_index(0), parseHexColor_json(data["objects"][i]["color"]));
             e->getComponent<MeshComponent>().scale = glm::vec3(radius);
             e->addComponent<PointMass>(mass, parseDvec3(data["objects"][i]["p0"]), parseDvec3(data["objects"][i]["v0"]));
             e->getComponent<PointMass>().rkinit(Physics::rklevel);

@@ -5,6 +5,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <SDL3_image/SDL_image.h>
+//#include <SDL3_gfxPrimitives.h>
 
 //std
 #include <iostream>
@@ -16,7 +17,7 @@
 
 //Project classes
 #include "MeshManager.h"
-#include "OpenGLRenderer.h"
+#include "Renderer.h"
 #include "utils/glUtils.h"
 #include "ECS/Components.h"
 
@@ -33,7 +34,7 @@ public:
 	//static SDL_Renderer* renderer;
 	// static SDL_Event event;
 	static EntityManager entityManager;
-	static OpenGLRenderer glRenderer;
+	static Renderer renderer;
 	static std::vector<SDL_Event> events;
 
 	MeshManager meshManager;

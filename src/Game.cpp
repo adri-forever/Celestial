@@ -12,7 +12,7 @@
 #include "Physics.h"
 
 EntityManager Game::entityManager;
-OpenGLRenderer Game::glRenderer;
+Renderer Game::renderer;
 std::vector<SDL_Event> Game::events;
 
 Game::Game() {}
@@ -66,7 +66,7 @@ void Game::init(const char* title, int width, int height, SDL_WindowFlags flags)
 				std::cout << "GLAD loading error: " << SDL_GetError() << std::endl;
 			}
 
-			glRenderer.init(glContext);
+			renderer.init(glContext);
 		} else {
 			std::cout << "OpenGL not requested" << std::endl;
 		}
@@ -82,33 +82,34 @@ void Game::init(const char* title, int width, int height, SDL_WindowFlags flags)
 		Mesh* ico = meshManager.loadMesh("ico", "./assets/models/ico.obj");
 		Mesh* coob = meshManager.loadMesh("coob", "./assets/models/coob.obj");
 
+		// Creating camera
 		auto& camera1(entityManager.addEntity());
 		camera1.tag = "thecam";
 		camera1.addComponent<TransformComponent>(0.f, 1.5f, 3.f);
-		camera1.addComponent<Camera>(&glRenderer);
+		camera1.addComponent<Camera>(&renderer);
 		camera1.addComponent<CamKeyboardController>();
 		mainCamera = &camera1;
 
-		Physics::import("assets/physcripts/1.json", &entityManager, &glRenderer, &meshManager);
+		Physics::import("assets/physcripts/1.json", &entityManager, &renderer, &meshManager);
 
 		// glm::vec3 color_red(1.f, 0.f, 0.f);
-		// glm::vec3 color_cyan(0.f, 1.f, 1.f);
+		glm::vec3 color_cyan(0.f, 1.f, 1.f);
 		// glm::vec3 color_db(0.5f, .1f, .1f);
 		// auto& e1(entityManager.addEntity());
 		// e1.addComponent<TransformComponent>(0.f, 0.f, 0.f);
-		// e1.addComponent<MeshComponent>(&glRenderer, &ico, color_red);
+		// e1.addComponent<MeshComponent>(&renderer, &ico, color_red);
 		// e1.getComponent<MeshComponent>().scale = glm::vec3(.5f);
 		// e1.addComponent<PointMass>(1.e6);
 
-		// auto& e2(entityManager.addEntity());
-		// e2.addComponent<TransformComponent>(4.f, 0.f, 0.f);
-		// e2.addComponent<MeshComponent>(&glRenderer, &ico, color_cyan);
-		// e2.getComponent<MeshComponent>().scale = glm::vec3(.3f);
-		// e2.addComponent<PointMass>(1.e6);
+		auto& e2(entityManager.addEntity());
+		e2.addComponent<TransformComponent>(4.f, 0.f, 0.f);
+		e2.addComponent<MeshComponent>(&renderer, ico, color_cyan);
+		e2.getComponent<MeshComponent>().scale = glm::vec3(.3f);
+		e2.addComponent<PointMass>(1.e6);
 
 		// auto& e3(entityManager.addEntity());
 		// e3.addComponent<TransformComponent>(0.f, 5.f, 0.f);
-		// e3.addComponent<MeshComponent>(&glRenderer, &ico, color_db);
+		// e3.addComponent<MeshComponent>(&renderer, &ico, color_db);
 		// e3.getComponent<MeshComponent>().scale = glm::vec3(.2f);
 		// e3.addComponent<PointMass>(1.e6);
 
@@ -197,16 +198,21 @@ void Game::update(int framelength) {
 
 void Game::render() {
 	//Set empty color & clear
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClearColor(.2f, .2f, .2f, 1.0f);
 
-	glRenderer.use();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
 	if (mainCamera) {
 		Camera& camera = mainCamera->getComponent<Camera>();
-		camera.setCamera();
+		camera.setCamera(); // set uniform for view and projections
 	} else {
 		std::cout << "Camera not found ..." << std::endl;
 	}
+
+	// renderer.renderSkybox();
+
+	glUseProgram(renderer.mainShader);
+
 	// std::cout << "Projection : " << glm::to_string(camera.projection) << std::endl;
 	// std::cout << "View : " << glm::to_string(camera.view) << std::endl;
 
@@ -216,7 +222,7 @@ void Game::render() {
 }
 
 void Game::clean() {
-	/*glDeleteProgram(shaderProgram);
+	/*glDeleteProgram(mainShader);
 	glDeleteVertexArrays(1, &VAO);*/
 	
 	TTF_CloseFont(font);
@@ -244,7 +250,7 @@ void Game::toggleCursor(bool state) {
 void Game::spawn(glm::dvec3 p0, glm::dvec3 v0, double m, double size, std::string meshname) {
     auto& e(entityManager.addEntity());
     e.addComponent<TransformComponent>(0.f, 0.f, 0.f);
-    e.addComponent<MeshComponent>(&glRenderer, meshManager.getMesh(meshname), glm::vec3(1.f, 1.f, 1.f));
+    e.addComponent<MeshComponent>(&renderer, meshManager.getMesh(meshname), glm::vec3(1.f, 1.f, 1.f));
     e.getComponent<MeshComponent>().scale = glm::vec3(size);
     e.addComponent<PointMass>(m, p0, v0);
 	e.getComponent<PointMass>().rkinit(klevel);

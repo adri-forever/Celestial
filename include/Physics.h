@@ -8,7 +8,7 @@
 
 
 class PointMass;
-class OpenGLRenderer;
+class Renderer;
 class MeshManager;
 
 namespace Physics {
@@ -20,7 +20,7 @@ namespace Physics {
 
     void echo();
 
-    void import(std::string scriptpath, EntityManager* emanager, OpenGLRenderer* glRenderer, MeshManager* meshManager);
+    void import(std::string scriptpath, EntityManager* emanager, Renderer* renderer, MeshManager* meshManager);
     
     void rkinit(EntityManager* emanager, int klevel);
     void rkinit(EntityManager* emanager);

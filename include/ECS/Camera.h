@@ -11,7 +11,7 @@
 
 #include "ECS.h"
 #include "TransformComponent.h"
-#include "OpenGLRenderer.h"
+#include "Renderer.h"
 
 //Let us not delve into 3d graphics by hand, at least not now
  
@@ -26,7 +26,7 @@ private:
 
 public:
 	Camera() {}
-	Camera(OpenGLRenderer* renderer);
+	Camera(Renderer* renderer);
 	~Camera() {}
 
 	bool active = true;
@@ -44,7 +44,7 @@ public:
 
 	TransformComponent* transform;
 
-	OpenGLRenderer* glRenderer;
+	Renderer* renderer;
 
 	void init() override;
 	void update() override;

@@ -2,8 +2,8 @@
 
 MeshComponent::MeshComponent() {}
 
-MeshComponent::MeshComponent(OpenGLRenderer* renderer, Mesh* imesh, glm::vec3 icolor) {
-	glRenderer = renderer;
+MeshComponent::MeshComponent(Renderer* irenderer, Mesh* imesh, glm::vec3 icolor) {
+	renderer = irenderer;
 	color = icolor;
 	mesh = imesh;
 }
@@ -22,7 +22,7 @@ void MeshComponent::init() {
 
 void MeshComponent::render() {
 	if (mesh && transform) {
-		GLint uniformLoc = glGetUniformLocation(glRenderer->shaderProgram, "color");
+		GLint uniformLoc = glGetUniformLocation(renderer->mainShader, "color");
 		
 		mesh->bind();
 		// std::cout << "Drawing entity at " << transform->position << std::endl;
@@ -34,7 +34,7 @@ void MeshComponent::render() {
 		
 		glm::mat4 model = glm::scale(glm::mat4(1.f), scale);
 		model = glm::translate(model, glm::vec3((float)transform->position.x, (float)transform->position.y, (float)transform->position.z));
-		glRenderer->setMat4("model", &model[0][0]);
+		renderer->setMat4("model", &model[0][0]);
 
 		//Set color
 		glUniform3f(uniformLoc, color.r, color.g, color.b);

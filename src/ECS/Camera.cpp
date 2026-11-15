@@ -7,8 +7,8 @@
 #include "glm/gtx/string_cast.hpp"
 #endif //!GLM_ENABLE_EXPERIMENTAL
 
-Camera::Camera(OpenGLRenderer* renderer) {
-    glRenderer = renderer;
+Camera::Camera(Renderer* renderer_i) {
+    renderer = renderer_i;
 }
 
 void Camera::init() {
@@ -65,6 +65,18 @@ void Camera::updateProjection(float aspect) {
 }
 
 void Camera::setCamera() {
-    glRenderer->setMat4("projection", &projection[0][0]);
-    glRenderer->setMat4("view", &view[0][0]);
+	glm::mat4 skyboxview = glm::mat4(glm::mat3(view)); // remove translations from view for skybox
+
+    // std::cout << "skyboxview =" << glm::to_string(skyboxview) << std::endl;
+    // std::cout << "projection =" << glm::to_string(projection) << std::endl;
+    std::cout << "main shader: " << renderer->mainShader << std::endl;
+    std::cout << "skybox shader: " << renderer->skyboxShader << std::endl;
+
+    glUseProgram(renderer->skyboxShader);
+    renderer->setMat4("projection", &projection[0][0]);
+    renderer->setMat4("view", &skyboxview[0][0]);
+
+    glUseProgram(renderer->mainShader);
+    renderer->setMat4("projection", &projection[0][0]);
+    renderer->setMat4("view", &view[0][0]);
 }

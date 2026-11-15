@@ -103,7 +103,7 @@ void CamKeyboardController::smart_direction() {
 		(int)keyboardstate[SDL_SCANCODE_SPACE] - (int)keyboardstate[SDL_SCANCODE_LCTRL],
 		(int)keyboardstate[SDL_SCANCODE_S] - (int)keyboardstate[SDL_SCANCODE_W]
 	);
-	// std::cout << glm::to_string(direction) << std::endl;
+	std::cout << glm::to_string(direction) << std::endl;
 }
 
 void CamKeyboardController::update_firstperson(glm::quat yaw, glm::quat pitch) {

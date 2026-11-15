@@ -10,7 +10,7 @@
 
 #include "ECS.h"
 #include "TransformComponent.h"
-#include "OpenGLRenderer.h"
+#include "Renderer.h"
 #include "MeshManager.h"
 
 class MeshComponent : public Component {
@@ -19,7 +19,7 @@ private:
 
 public:
 	MeshComponent();
-	MeshComponent(OpenGLRenderer* renderer, Mesh* imesh, glm::vec3 icolor);
+	MeshComponent(Renderer* irenderer, Mesh* imesh, glm::vec3 icolor);
 	~MeshComponent();
 
 	bool wireframe = true;
@@ -30,7 +30,7 @@ public:
 
 	Mesh* mesh { nullptr };
 
-	OpenGLRenderer* glRenderer { nullptr };
+	Renderer* renderer { nullptr };
 	TransformComponent* transform { nullptr };
 
 	void init() override;
