@@ -211,7 +211,7 @@ void Game::render() {
 
 	// renderer.renderSkybox();
 
-	glUseProgram(renderer.mainShader);
+	renderer.use(renderer.mainShader);
 
 	// std::cout << "Projection : " << glm::to_string(camera.projection) << std::endl;
 	// std::cout << "View : " << glm::to_string(camera.view) << std::endl;

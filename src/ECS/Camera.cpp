@@ -26,7 +26,7 @@ void Camera::update() {
 		listen_input(event);
 	}
 
-    std::cout << "nearplane " << nearplane << "; farplane " << farplane << std::endl;
+    // std::cout << "nearplane " << nearplane << "; farplane " << farplane << std::endl;
 }
 
 void Camera::listen_input(SDL_Event event) {
@@ -69,14 +69,14 @@ void Camera::setCamera() {
 
     // std::cout << "skyboxview =" << glm::to_string(skyboxview) << std::endl;
     // std::cout << "projection =" << glm::to_string(projection) << std::endl;
-    std::cout << "main shader: " << renderer->mainShader << std::endl;
-    std::cout << "skybox shader: " << renderer->skyboxShader << std::endl;
+    // std::cout << "main shader: " << renderer->mainShader << std::endl;
+    // std::cout << "skybox shader: " << renderer->skyboxShader << std::endl;
 
-    glUseProgram(renderer->skyboxShader);
-    renderer->setMat4("projection", &projection[0][0]);
-    renderer->setMat4("view", &skyboxview[0][0]);
+    // renderer->use(renderer->skyboxShader);
+    // renderer->setMat4("projection", &projection[0][0]);
+    // renderer->setMat4("view", &skyboxview[0][0]);
 
-    glUseProgram(renderer->mainShader);
+    renderer->use(renderer->mainShader);
     renderer->setMat4("projection", &projection[0][0]);
     renderer->setMat4("view", &view[0][0]);
 }

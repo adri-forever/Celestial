@@ -80,14 +80,6 @@ void Renderer::init(SDL_GLContext context) {
 	// glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 }
 
-// void Renderer::use() const {
-// 	glUseProgram(mainShader);
-// }
-
-// void Renderer::render() {
-
-// }
-
 void Renderer::initMain() {
 	std::cout << "Building main shader" << std::endl;
 
@@ -160,14 +152,14 @@ void Renderer::initSkybox() {
 		tex = "./assets/textures/skybox/"+textures[i];
 		unsigned char *texdata = stbi_load(tex.c_str(), &width, &height, &channels, 0);
 		if (texdata) {
-			for (int j=0; j < std::min(width*height, 100); j++) {
-				std::cout << "Pixel " << j << ": ";
-				for (int k=0; k < channels; k++) {
-					printf("%02x, ", texdata[channels*j+k]);
-					// std::cout << std::hex << texdata[channels*i+j] << ", ";
-				}
-				std::cout << std::endl;
-			}
+			// for (int j=0; j < std::min(width*height, 100); j++) { // Print ptexture pixels
+			// 	std::cout << "Pixel " << j << ": ";
+			// 	for (int k=0; k < channels; k++) {
+			// 		printf("%02x, ", texdata[channels*j+k]);
+			// 		// std::cout << std::hex << texdata[channels*i+j] << ", ";
+			// 	}
+			// 	std::cout << std::endl;
+			// }
 			if (channels == 3) {
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + (GLuint)i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texdata);
 			} else if (channels == 4) {
@@ -204,7 +196,7 @@ void Renderer::initSkybox() {
 
 void Renderer::renderSkybox() {
 	glDepthMask(GL_FALSE);
-	glUseProgram(skyboxShader);
+	use(skyboxShader);
 	glBindVertexArray(skyboxVAO);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
 	glDrawArrays(GL_TRIANGLES, 0, skyboxFaceCount);
@@ -217,7 +209,7 @@ void Renderer::setMat4(const std::string& name, const float* mat) const {
 	// printf("glGetUniformLocation = %p\n", (void*)glGetUniformLocation);
 	// printf("program = %u\n", program);
 	// printf("is program = %d\n", glIsProgram(program));
-	GLuint location = glGetUniformLocation(shader, name.c_str()); // WHICH SHADER (context)???? make use method and currentShader attribute to keep memory ?
+	GLuint location = glGetUniformLocation(currentShader, name.c_str()); // WHICH SHADER (context)???? make use method and currentShader attribute to keep memory ?
 	glUniformMatrix4fv(location, 1, GL_FALSE, mat);
 }
 

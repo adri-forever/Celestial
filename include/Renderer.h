@@ -14,12 +14,16 @@ public:
 
 	SDL_GLContext glContext;
 	
-	GLuint skyboxShader, mainShader;
+	GLuint skyboxShader, mainShader, currentShader;
 
     GLuint skyboxVAO, skyboxVBO, skyboxTexture;
 	
 	void init(SDL_GLContext context);
-	// void use() const;
+
+	void use(GLuint shader) {
+		glUseProgram(shader);
+		currentShader = shader;
+	}
 	// void render();
 
 	void initMain();

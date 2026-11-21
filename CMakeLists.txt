@@ -68,14 +68,11 @@ if (WIN32)
     )
 endif()
 
-# Remove already present assets
-add_custom_command(TARGET Celestial POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E remove_directory
-        ${CMAKE_BINARY_DIR}/assets
-)
-# Copy the assets to the build directory
-add_custom_command(TARGET Celestial POST_BUILD
+add_custom_target(CopyAssets ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/assets
         ${CMAKE_BINARY_DIR}/assets
+    COMMENT "Copying assets..."
 )
+
+add_dependencies(Celestial CopyAssets)
