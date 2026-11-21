@@ -197,6 +197,8 @@ void Renderer::initSkybox() {
 void Renderer::renderSkybox() {
 	glDepthMask(GL_FALSE);
 	use(skyboxShader);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_POLYGON_OFFSET_FILL);
 	glBindVertexArray(skyboxVAO);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
 	glDrawArrays(GL_TRIANGLES, 0, skyboxFaceCount);

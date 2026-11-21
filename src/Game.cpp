@@ -209,7 +209,7 @@ void Game::render() {
 		std::cout << "Camera not found ..." << std::endl;
 	}
 
-	// renderer.renderSkybox();
+	renderer.renderSkybox();
 
 	renderer.use(renderer.mainShader);
 

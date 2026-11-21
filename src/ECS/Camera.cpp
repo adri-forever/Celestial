@@ -72,9 +72,9 @@ void Camera::setCamera() {
     // std::cout << "main shader: " << renderer->mainShader << std::endl;
     // std::cout << "skybox shader: " << renderer->skyboxShader << std::endl;
 
-    // renderer->use(renderer->skyboxShader);
-    // renderer->setMat4("projection", &projection[0][0]);
-    // renderer->setMat4("view", &skyboxview[0][0]);
+    renderer->use(renderer->skyboxShader);
+    renderer->setMat4("projection", &projection[0][0]);
+    renderer->setMat4("view", &skyboxview[0][0]);
 
     renderer->use(renderer->mainShader);
     renderer->setMat4("projection", &projection[0][0]);
